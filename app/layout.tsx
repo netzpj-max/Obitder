@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = new URL(`${protocol}://${host}`);
   const title = "Orbitder Lab (ออบิดเด้อ แลป) — ห้องทดลองระบบสุริยะ";
   const description =
-    "เว็บจำลองระบบสุริยะ 3 มิติสำหรับนักสำรวจอวกาศรุ่นเยาว์";
+    "เว็บจำลองระบบสุริยะ 3 มิติที่มีดาวเคราะห์ ดาวเคราะห์แคระ แถบดาวเคราะห์น้อย และเมฆออร์ต สำหรับนักสำรวจอวกาศรุ่นเยาว์";
 
   return {
     metadataBase: baseUrl,

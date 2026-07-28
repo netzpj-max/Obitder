@@ -46,6 +46,9 @@ type Planet = {
   tilt: number;
   realAu: number;
   majorMoons: string[];
+  isDwarf?: boolean;
+  eccentricity?: number;
+  orbitInclination?: number;
 };
 
 const PLANETS: Planet[] = [
@@ -211,6 +214,126 @@ const PLANETS: Planet[] = [
   },
 ];
 
+const DWARF_PLANETS: Planet[] = [
+  {
+    key: "ceres",
+    name: "ซีรีส",
+    english: "CERES",
+    color: "#827f78",
+    accent: "#d5d0c5",
+    distance: 22.2,
+    radius: 0.28,
+    period: 1682,
+    day: "9 ชั่วโมง",
+    temp: "ประมาณ −105°C",
+    moons: 0,
+    fact: "ดาวเคราะห์แคระดวงเดียวในระบบสุริยะชั้นใน และเป็นวัตถุใหญ่ที่สุดในแถบดาวเคราะห์น้อย",
+    kind: "ดาวเคราะห์แคระ • แถบดาวเคราะห์น้อย",
+    realDistance: "413 ล้าน กม.",
+    gravity: "≈0.03 เท่าของโลก",
+    tilt: 4,
+    realAu: 2.77,
+    majorMoons: [],
+    isDwarf: true,
+    eccentricity: 0.076,
+    orbitInclination: 10.6,
+  },
+  {
+    key: "pluto",
+    name: "พลูโต",
+    english: "PLUTO",
+    color: "#b9a48e",
+    accent: "#f0d0ad",
+    distance: 54,
+    radius: 0.34,
+    period: 90560,
+    day: "153 ชั่วโมง",
+    temp: "ประมาณ −232°C",
+    moons: 5,
+    fact: "โลกน้ำแข็งรูปหัวใจในแถบไคเปอร์ มีวงโคจรทั้งรีและเอียงกว่าดาวเคราะห์หลัก",
+    kind: "ดาวเคราะห์แคระ • แถบไคเปอร์",
+    realDistance: "5.9 พันล้าน กม.",
+    gravity: "≈0.06 เท่าของโลก",
+    tilt: 57,
+    realAu: 39.48,
+    majorMoons: ["คารอน", "นิกซ์", "ไฮดรา", "เคอร์เบอรอส", "สติกซ์"],
+    isDwarf: true,
+    eccentricity: 0.249,
+    orbitInclination: 17.2,
+  },
+  {
+    key: "haumea",
+    name: "เฮาเมอา",
+    english: "HAUMEA",
+    color: "#d8d7d0",
+    accent: "#f7f5e9",
+    distance: 59,
+    radius: 0.3,
+    period: 104096,
+    day: "4 ชั่วโมง",
+    temp: "ต่ำกว่า −200°C",
+    moons: 2,
+    fact: "หมุนเร็วมากจนรูปร่างยืดคล้ายลูกรักบี้ และเป็นดาวเคราะห์แคระที่มีวงแหวน",
+    kind: "ดาวเคราะห์แคระ • แถบไคเปอร์",
+    realDistance: "6.5 พันล้าน กม.",
+    gravity: "≈0.04 เท่าของโลก",
+    tilt: 28,
+    realAu: 43,
+    majorMoons: ["ฮิอิอากา", "นามากา"],
+    isDwarf: true,
+    eccentricity: 0.195,
+    orbitInclination: 28.2,
+  },
+  {
+    key: "makemake",
+    name: "มาคีมาคี",
+    english: "MAKEMAKE",
+    color: "#a96c4f",
+    accent: "#f2ae7d",
+    distance: 64,
+    radius: 0.31,
+    period: 111401,
+    day: "22.5 ชั่วโมง",
+    temp: "ประมาณ −240°C",
+    moons: 1,
+    fact: "โลกน้ำแข็งสีแดงน้ำตาลที่อยู่ไกลออกไป และมีดวงจันทร์ขนาดเล็กชื่อเล่นว่า MK 2",
+    kind: "ดาวเคราะห์แคระ • แถบไคเปอร์",
+    realDistance: "6.85 พันล้าน กม.",
+    gravity: "≈0.05 เท่าของโลก",
+    tilt: 29,
+    realAu: 45.8,
+    majorMoons: ["MK 2"],
+    isDwarf: true,
+    eccentricity: 0.159,
+    orbitInclination: 29,
+  },
+  {
+    key: "eris",
+    name: "อีริส",
+    english: "ERIS",
+    color: "#d4d8dd",
+    accent: "#eef5ff",
+    distance: 70,
+    radius: 0.32,
+    period: 203444,
+    day: "25.9 ชั่วโมง",
+    temp: "−217 ถึง −243°C",
+    moons: 1,
+    fact: "หนึ่งในดาวเคราะห์แคระที่ใหญ่ที่สุด อยู่ไกลจนแสงอาทิตย์ใช้เวลาเดินทางมากกว่า 9 ชั่วโมง",
+    kind: "ดาวเคราะห์แคระ • กระจายตัวชั้นนอก",
+    realDistance: "10 พันล้าน กม.",
+    gravity: "≈0.08 เท่าของโลก",
+    tilt: 44,
+    realAu: 68,
+    majorMoons: ["ดิสโนเมีย"],
+    isDwarf: true,
+    eccentricity: 0.44,
+    orbitInclination: 44,
+  },
+];
+
+const ALL_WORLDS = [...PLANETS, ...DWARF_PLANETS];
+
 const STAR_NAMES = ["ORION", "SIRIUS", "POLARIS", "BETELGEUSE"];
 
 const TIME_SCALES = [
@@ -354,6 +477,59 @@ const FEATURED_MOONS: Record<string, MoonFact[]> = {
       tag: "โคจรย้อนทาง",
       fact: "เป็นดวงจันทร์ขนาดใหญ่เพียงดวงที่โคจรสวนทางการหมุนของดาวแม่ และมีน้ำพุไนโตรเจนเย็นจัด",
       color: "#c9b7aa",
+    },
+  ],
+  pluto: [
+    {
+      name: "คารอน",
+      english: "CHARON",
+      diameter: "1,212 กม.",
+      orbit: "6.4 วัน",
+      tag: "คู่หูดวงใหญ่ของพลูโต",
+      fact: "คารอนมีขนาดประมาณครึ่งหนึ่งของพลูโต ทั้งคู่หันด้านเดิมเข้าหากันเสมอจนมักถูกเรียกว่าระบบดาวคู่",
+      color: "#b9b7b1",
+    },
+  ],
+  haumea: [
+    {
+      name: "ฮิอิอากา",
+      english: "HIʻIAKA",
+      diameter: "ประมาณ 310 กม.",
+      orbit: "ประมาณ 49 วัน",
+      tag: "ดวงจันทร์ชั้นนอก",
+      fact: "เป็นดวงจันทร์ดวงใหญ่และอยู่ไกลกว่านามากา เชื่อว่าเกิดจากการชนครั้งใหญ่ในอดีต",
+      color: "#d9d7cf",
+    },
+    {
+      name: "นามากา",
+      english: "NAMAKA",
+      diameter: "ประมาณ 170 กม.",
+      orbit: "ประมาณ 18 วัน",
+      tag: "ดวงจันทร์ชั้นใน",
+      fact: "วงโคจรของนามากาถูกรบกวนโดยแรงดึงจากฮิอิอากา ทำให้ระบบนี้ซับซ้อนและน่าสนใจ",
+      color: "#aaa9a4",
+    },
+  ],
+  makemake: [
+    {
+      name: "MK 2",
+      english: "S/2015 (136472) 1",
+      diameter: "ประมาณ 160 กม.",
+      orbit: "มากกว่า 12 วัน",
+      tag: "ดวงจันทร์มืดมาก",
+      fact: "ดวงจันทร์ชั่วคราวชื่อ MK 2 จางกว่ามาคีมาคีมากกว่า 1,300 เท่า จึงค้นพบได้ยาก",
+      color: "#5f554e",
+    },
+  ],
+  eris: [
+    {
+      name: "ดิสโนเมีย",
+      english: "DYSNOMIA",
+      diameter: "ประมาณ 700 กม.",
+      orbit: "ประมาณ 16 วัน",
+      tag: "ช่วยชั่งมวลของอีริส",
+      fact: "นักดาราศาสตร์ใช้การโคจรของดิสโนเมียคำนวณมวลของอีริสและเปรียบเทียบกับพลูโต",
+      color: "#bdc4cc",
     },
   ],
 };
@@ -923,6 +1099,58 @@ const REAL_MOON_ORBITS: Record<string, MoonOrbit[]> = {
       phaseDeg: 286.5,
     },
   ],
+  pluto: [
+    {
+      name: "Charon",
+      semiMajorKm: 19600,
+      periodDays: 6.387222,
+      eccentricity: 0,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 0,
+      phaseDeg: 304.1,
+    },
+    {
+      name: "Nix",
+      semiMajorKm: 49300,
+      periodDays: 24.85,
+      eccentricity: 0.015,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 31.4,
+      phaseDeg: 338.2,
+    },
+    {
+      name: "Hydra",
+      semiMajorKm: 65200,
+      periodDays: 38.2,
+      eccentricity: 0.009,
+      inclinationDeg: 0.3,
+      nodeDeg: 114.3,
+      periapsisDeg: 139.3,
+      phaseDeg: 335,
+    },
+    {
+      name: "Kerberos",
+      semiMajorKm: 58300,
+      periodDays: 32.17,
+      eccentricity: 0.01,
+      inclinationDeg: 0.4,
+      nodeDeg: 314.3,
+      periapsisDeg: 32.1,
+      phaseDeg: 276.1,
+    },
+    {
+      name: "Styx",
+      semiMajorKm: 43200,
+      periodDays: 20.16,
+      eccentricity: 0.025,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 322.5,
+      phaseDeg: 358.1,
+    },
+  ],
 };
 
 function solveEccentricAnomaly(meanAnomaly: number, eccentricity: number) {
@@ -1012,6 +1240,9 @@ export default function SolarSystem() {
   const distanceModeRef = useRef<DistanceMode>("compact");
   const moonsRef = useRef(true);
   const shadowsRef = useRef(true);
+  const dwarfsRef = useRef(true);
+  const asteroidsRef = useRef(true);
+  const oortRef = useRef(true);
 
   const [selected, setSelected] = useState("earth");
   const [mode, setMode] = useState<ViewMode>("explore");
@@ -1024,6 +1255,9 @@ export default function SolarSystem() {
   const [distanceMode, setDistanceMode] =
     useState<DistanceMode>("compact");
   const [showShadows, setShowShadows] = useState(true);
+  const [showDwarfs, setShowDwarfs] = useState(true);
+  const [showAsteroids, setShowAsteroids] = useState(true);
+  const [showOort, setShowOort] = useState(true);
   const [moonFactIndex, setMoonFactIndex] = useState(0);
   const [moonDetailsOpen, setMoonDetailsOpen] = useState(true);
   const [panelOpen, setPanelOpen] = useState(true);
@@ -1031,7 +1265,7 @@ export default function SolarSystem() {
   const [simDays, setSimDays] = useState(0);
 
   const activePlanet = useMemo(
-    () => PLANETS.find((p) => p.key === selected) ?? PLANETS[2],
+    () => ALL_WORLDS.find((p) => p.key === selected) ?? PLANETS[2],
     [selected],
   );
   const activeMoonFacts = FEATURED_MOONS[selected] ?? [];
@@ -1068,6 +1302,18 @@ export default function SolarSystem() {
   useEffect(() => {
     shadowsRef.current = showShadows;
   }, [showShadows]);
+
+  useEffect(() => {
+    dwarfsRef.current = showDwarfs;
+  }, [showDwarfs]);
+
+  useEffect(() => {
+    asteroidsRef.current = showAsteroids;
+  }, [showAsteroids]);
+
+  useEffect(() => {
+    oortRef.current = showOort;
+  }, [showOort]);
 
   useEffect(() => {
     distanceModeRef.current = distanceMode;
@@ -1253,22 +1499,36 @@ export default function SolarSystem() {
     >();
     const selectable: THREE.Object3D[] = [sun];
 
-    PLANETS.forEach((planet, index) => {
+    ALL_WORLDS.forEach((planet, index) => {
       const points: THREE.Vector3[] = [];
+      const orbitalEccentricity = planet.eccentricity ?? 0;
+      const orbitalInclination = THREE.MathUtils.degToRad(
+        planet.orbitInclination ?? 0,
+      );
       for (let i = 0; i < 160; i += 1) {
         const a = (i / 160) * Math.PI * 2;
+        const orbitalRadius =
+          (1 - orbitalEccentricity * orbitalEccentricity) /
+          (1 + orbitalEccentricity * Math.cos(a));
         points.push(
           new THREE.Vector3(
-            Math.cos(a),
-            0,
-            Math.sin(a) * 0.97,
+            Math.cos(a) * orbitalRadius,
+            Math.sin(a) * orbitalRadius * Math.sin(orbitalInclination),
+            Math.sin(a) *
+              orbitalRadius *
+              Math.cos(orbitalInclination) *
+              (planet.isDwarf ? 1 : 0.97),
           ),
         );
       }
       const orbit = new THREE.LineLoop(
         new THREE.BufferGeometry().setFromPoints(points),
         new THREE.LineBasicMaterial({
-          color: index === 2 ? 0x70b7e6 : 0x4d7190,
+          color: planet.isDwarf
+            ? 0x8f7bab
+            : index === 2
+              ? 0x70b7e6
+              : 0x4d7190,
           transparent: true,
           opacity: index === 2 ? 0.48 : 0.27,
         }),
@@ -1317,6 +1577,25 @@ export default function SolarSystem() {
         group.add(ring);
       }
 
+      if (planet.key === "haumea") {
+        mesh.scale.set(1.35, 0.78, 0.82);
+        const ring = new THREE.Mesh(
+          new THREE.RingGeometry(
+            planet.radius * 1.48,
+            planet.radius * 1.72,
+            56,
+          ),
+          new THREE.MeshBasicMaterial({
+            color: 0xdde4eb,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.42,
+          }),
+        );
+        ring.rotation.x = Math.PI / 2.15;
+        group.add(ring);
+      }
+
       if (planet.moons > 0) {
         const realOrbits = REAL_MOON_ORBITS[planet.key] ?? [];
         const moonGeometry = new THREE.SphereGeometry(0.075, 7, 5);
@@ -1347,8 +1626,10 @@ export default function SolarSystem() {
               ? 2.5
               : 5.2;
         const realDistances = realOrbits.map((moon) => moon.semiMajorKm);
-        const minRealDistance = Math.min(...realDistances);
-        const maxRealDistance = Math.max(...realDistances);
+        const minRealDistance =
+          realDistances.length > 0 ? Math.min(...realDistances) : 1;
+        const maxRealDistance =
+          realDistances.length > 0 ? Math.max(...realDistances) : 1;
         const logRealRange =
           Math.log(maxRealDistance) - Math.log(minRealDistance);
         const maxProceduralPeriod =
@@ -1528,6 +1809,77 @@ export default function SolarSystem() {
       scene.add(group);
     });
 
+    let seededState = 0x51f15e;
+    const seededRandom = () => {
+      seededState = (seededState * 1664525 + 1013904223) >>> 0;
+      return seededState / 4294967296;
+    };
+
+    const asteroidCount = 1800;
+    const asteroidPositions = new Float32Array(asteroidCount * 3);
+    const asteroidAUs = new Float32Array(asteroidCount);
+    const asteroidPhases = new Float32Array(asteroidCount);
+    const asteroidInclinations = new Float32Array(asteroidCount);
+    for (let asteroidIndex = 0; asteroidIndex < asteroidCount; asteroidIndex += 1) {
+      const laneBias = (asteroidIndex % 7) * 0.018;
+      asteroidAUs[asteroidIndex] =
+        2.2 + seededRandom() * 1.0 + laneBias;
+      asteroidPhases[asteroidIndex] = seededRandom() * Math.PI * 2;
+      asteroidInclinations[asteroidIndex] =
+        THREE.MathUtils.degToRad((seededRandom() - 0.5) * 18);
+    }
+    const asteroidGeometry = new THREE.BufferGeometry();
+    asteroidGeometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(asteroidPositions, 3),
+    );
+    const asteroidMaterial = new THREE.PointsMaterial({
+      color: 0xc5a783,
+      size: 0.075,
+      transparent: true,
+      opacity: 0.72,
+      depthWrite: false,
+      sizeAttenuation: true,
+    });
+    const asteroidBelt = new THREE.Points(
+      asteroidGeometry,
+      asteroidMaterial,
+    );
+    asteroidBelt.frustumCulled = false;
+    asteroidBelt.renderOrder = 2;
+    scene.add(asteroidBelt);
+
+    const oortCount = 3600;
+    const oortPositions = new Float32Array(oortCount * 3);
+    for (let oortIndex = 0; oortIndex < oortCount; oortIndex += 1) {
+      const radius = 72 + Math.pow(seededRandom(), 0.58) * 55;
+      const vertical = seededRandom() * 2 - 1;
+      const azimuth = seededRandom() * Math.PI * 2;
+      const horizontal = Math.sqrt(1 - vertical * vertical);
+      oortPositions[oortIndex * 3] =
+        radius * horizontal * Math.cos(azimuth);
+      oortPositions[oortIndex * 3 + 1] = radius * vertical;
+      oortPositions[oortIndex * 3 + 2] =
+        radius * horizontal * Math.sin(azimuth);
+    }
+    const oortGeometry = new THREE.BufferGeometry();
+    oortGeometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(oortPositions, 3),
+    );
+    const oortMaterial = new THREE.PointsMaterial({
+      color: 0x8fc5d8,
+      size: 0.18,
+      transparent: true,
+      opacity: 0.22,
+      depthWrite: false,
+      sizeAttenuation: true,
+    });
+    const oortCloud = new THREE.Points(oortGeometry, oortMaterial);
+    oortCloud.frustumCulled = false;
+    oortCloud.renderOrder = 0;
+    scene.add(oortCloud);
+
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
     let dragging = false;
@@ -1581,7 +1933,7 @@ export default function SolarSystem() {
       targetDistance = THREE.MathUtils.clamp(
         targetDistance + event.deltaY * 0.028,
         22,
-        92,
+        distanceModeRef.current === "real" ? 1400 : 180,
       );
     };
 
@@ -1596,7 +1948,7 @@ export default function SolarSystem() {
       reset: () => {
         yaw = -0.45;
         pitch = 0.93;
-        targetDistance = distanceModeRef.current === "real" ? 470 : 62;
+        targetDistance = distanceModeRef.current === "real" ? 1000 : 62;
         focusPlanet = false;
         targetLook.set(0, 0, 0);
       },
@@ -1605,15 +1957,18 @@ export default function SolarSystem() {
         targetDistance = THREE.MathUtils.clamp(
           targetDistance + zoomStep,
           22,
-          distanceModeRef.current === "real" ? 680 : 92,
+          distanceModeRef.current === "real" ? 1400 : 180,
         );
       },
       focus: (key: string) => {
-        const planet = PLANETS.find((item) => item.key === key);
+        const planet = ALL_WORLDS.find((item) => item.key === key);
         if (!planet) return;
         if (distanceModeRef.current === "real") {
           focusPlanet = true;
           targetDistance = Math.max(24, planet.radius * 7 + 18);
+        } else if (planet.isDwarf) {
+          focusPlanet = true;
+          targetDistance = 22;
         } else {
           targetDistance = Math.max(26, planet.distance + 17);
           focusPlanet = targetDistance < 52;
@@ -1622,7 +1977,7 @@ export default function SolarSystem() {
       setDistanceMode: (nextMode: DistanceMode) => {
         focusPlanet = false;
         targetLook.set(0, 0, 0);
-        targetDistance = nextMode === "real" ? 470 : 62;
+        targetDistance = nextMode === "real" ? 1000 : 62;
       },
     };
 
@@ -1654,7 +2009,7 @@ export default function SolarSystem() {
       spacetimeSurface.scale.set(sheetScale, sheetScale, 1);
       spacetimeWire.scale.set(sheetScale, sheetScale, 1);
       grid.scale.set(sheetScale, 1, sheetScale);
-      stars.scale.setScalar(1 + distanceMix * 3.4);
+      stars.scale.setScalar(1 + distanceMix * 8);
       (scene.fog as THREE.FogExp2).density = THREE.MathUtils.lerp(
         0.0065,
         0.00075,
@@ -1676,7 +2031,50 @@ export default function SolarSystem() {
       sunGroup.position.y = sunY;
       sunLight.position.y = sunY;
 
-      PLANETS.forEach((planet, index) => {
+      asteroidBelt.visible = asteroidsRef.current;
+      if (asteroidsRef.current) {
+        const asteroidPositionAttribute = asteroidGeometry.attributes
+          .position as THREE.BufferAttribute;
+        for (
+          let asteroidIndex = 0;
+          asteroidIndex < asteroidCount;
+          asteroidIndex += 1
+        ) {
+          const au = asteroidAUs[asteroidIndex];
+          const compactRadius = 20.2 + (au - 2.2) * 3.8;
+          const displayRadius = THREE.MathUtils.lerp(
+            compactRadius,
+            au * 13.5,
+            distanceMix,
+          );
+          const periodDays = 365.25 * Math.pow(au, 1.5);
+          const angle =
+            asteroidPhases[asteroidIndex] +
+            (elapsedDays / periodDays) * Math.PI * 2;
+          const inclination = asteroidInclinations[asteroidIndex];
+          asteroidPositionAttribute.setXYZ(
+            asteroidIndex,
+            Math.cos(angle) * displayRadius,
+            Math.sin(angle) * displayRadius * Math.sin(inclination),
+            Math.sin(angle) * displayRadius,
+          );
+        }
+        asteroidPositionAttribute.needsUpdate = true;
+        asteroidMaterial.size = THREE.MathUtils.lerp(
+          0.075,
+          0.48,
+          distanceMix,
+        );
+      }
+
+      oortCloud.visible = oortRef.current;
+      oortCloud.scale.setScalar(THREE.MathUtils.lerp(1, 14, distanceMix));
+      oortCloud.rotation.y += dt * 0.00005;
+      oortMaterial.opacity = oortRef.current
+        ? THREE.MathUtils.lerp(0.22, 0.34, distanceMix)
+        : 0;
+
+      ALL_WORLDS.forEach((planet, index) => {
         const displayDistance = THREE.MathUtils.lerp(
           planet.distance,
           planet.realAu * 13.5,
@@ -1684,16 +2082,32 @@ export default function SolarSystem() {
         );
         const angle =
           (elapsedDays / planet.period) * Math.PI * 2 + index * 0.72 + 0.2;
-        const x = Math.cos(angle) * displayDistance;
-        const z = Math.sin(angle) * displayDistance * 0.97;
+        const orbitalEccentricity = planet.eccentricity ?? 0;
+        const orbitalRadius =
+          (displayDistance *
+            (1 - orbitalEccentricity * orbitalEccentricity)) /
+          (1 + orbitalEccentricity * Math.cos(angle));
+        const orbitalInclination = THREE.MathUtils.degToRad(
+          planet.orbitInclination ?? 0,
+        );
+        const x = Math.cos(angle) * orbitalRadius;
+        const orbitalY =
+          Math.sin(angle) * orbitalRadius * Math.sin(orbitalInclination);
+        const z =
+          Math.sin(angle) *
+          orbitalRadius *
+          Math.cos(orbitalInclination) *
+          (planet.isDwarf ? 1 : 0.97);
         const group = planetGroups.get(planet.key);
         const mesh = planetMeshes.get(planet.key);
         if (!group || !mesh) return;
+        const bodyVisible = !planet.isDwarf || dwarfsRef.current;
+        group.visible = bodyVisible;
         const sheetY =
           (spacetimeHeight(displayDistance / sheetScale) +
             planet.radius * 0.48) *
           gravityMix;
-        group.position.set(x, sheetY, z);
+        group.position.set(x, sheetY + orbitalY, z);
         mesh.rotation.y += dt * (0.35 + 0.7 / Math.max(planet.radius, 0.5));
 
         const selectionRing = group.children.find(
@@ -1708,10 +2122,10 @@ export default function SolarSystem() {
         const line = gravityLines[index];
         const positions = line.geometry.attributes.position as THREE.BufferAttribute;
         positions.setXYZ(0, 0, sunY + 0.08, 0);
-        positions.setXYZ(1, x, sheetY + 0.08, z);
+        positions.setXYZ(1, x, sheetY + orbitalY + 0.08, z);
         positions.needsUpdate = true;
         const mat = line.material as THREE.LineBasicMaterial;
-        mat.opacity = gravityRef.current
+        mat.opacity = gravityRef.current && bodyVisible
           ? selectedRef.current === planet.key
             ? 0.38
             : 0.055
@@ -1719,14 +2133,14 @@ export default function SolarSystem() {
 
         const moonSystem = moonSystems.get(planet.key);
         if (moonSystem) {
-          moonSystem.mesh.visible = moonsRef.current;
-          moonSystem.guideGroup.visible = moonsRef.current;
-          moonSystem.guideMaterial.opacity = moonsRef.current
+          moonSystem.mesh.visible = moonsRef.current && bodyVisible;
+          moonSystem.guideGroup.visible = moonsRef.current && bodyVisible;
+          moonSystem.guideMaterial.opacity = moonsRef.current && bodyVisible
             ? selectedRef.current === planet.key
               ? 0.42
               : 0.075
             : 0;
-          if (moonsRef.current) {
+          if (moonsRef.current && bodyVisible) {
             for (
               let moonIndex = 0;
               moonIndex < moonSystem.phases.length;
@@ -1758,15 +2172,17 @@ export default function SolarSystem() {
 
       orbitLines.forEach((line, index) => {
         const mat = line.material as THREE.LineBasicMaterial;
-        const key = PLANETS[index].key;
-        mat.opacity = orbitRef.current
+        const body = ALL_WORLDS[index];
+        const key = body.key;
+        const bodyVisible = !body.isDwarf || dwarfsRef.current;
+        mat.opacity = orbitRef.current && bodyVisible
           ? selectedRef.current === key
             ? 0.78
             : 0.22
           : 0;
         const displayDistance = THREE.MathUtils.lerp(
-          PLANETS[index].distance,
-          PLANETS[index].realAu * 13.5,
+          ALL_WORLDS[index].distance,
+          ALL_WORLDS[index].realAu * 13.5,
           distanceMix,
         );
         line.scale.setScalar(displayDistance);
@@ -1915,11 +2331,42 @@ export default function SolarSystem() {
             ))}
           </div>
 
+          <section className="dwarf-section" aria-label="ดาวเคราะห์แคระ">
+            <div className="dwarf-section-heading">
+              <span>DWARF PLANETS</span>
+              <strong>ดาวเคราะห์แคระ 5 ดวง</strong>
+            </div>
+            <div className="dwarf-grid">
+              {DWARF_PLANETS.map((planet) => (
+                <button
+                  key={planet.key}
+                  type="button"
+                  className={`dwarf-item ${
+                    selected === planet.key ? "active" : ""
+                  }`}
+                  onClick={() => {
+                    setShowDwarfs(true);
+                    setSelected(planet.key);
+                  }}
+                >
+                  <MiniPlanet
+                    planet={planet}
+                    active={selected === planet.key}
+                  />
+                  <span>
+                    <strong>{planet.name}</strong>
+                    <small>{planet.english}</small>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+
           <div className="moon-total">
             <span className="moon-cluster" aria-hidden="true">● · •</span>
             <span>
-              <strong>ดวงจันทร์ทั้งหมด 422 ดวง</strong>
-              <small>จำนวนที่ยืนยันโดย NASA / IAU</small>
+              <strong>ดาวบริวารในฉาก 431 ดวง</strong>
+              <small>ดาวเคราะห์ 422 • ดาวแคระ 9</small>
             </span>
           </div>
 
@@ -1940,13 +2387,13 @@ export default function SolarSystem() {
           <canvas
             ref={canvasRef}
             className="space-canvas"
-            aria-label="แบบจำลองระบบสุริยะสามมิติ ลากเพื่อหมุน เลื่อนเพื่อซูม และแตะดาวเพื่อดูข้อมูล"
+            aria-label="แบบจำลองระบบสุริยะสามมิติ มีดาวเคราะห์ ดาวเคราะห์แคระ แถบดาวเคราะห์น้อย และเมฆออร์ต ลากเพื่อหมุน เลื่อนเพื่อซูม และแตะดาวเพื่อดูข้อมูล"
           />
 
           <div className="scene-title">
             <p>THE SOLAR SYSTEM</p>
             <h2>ระบบสุริยะของเรา</h2>
-            <span>ลากเพื่อหมุน • เลื่อนเพื่อซูม • แตะดาวเพื่อสำรวจ</span>
+            <span>8 ดาวเคราะห์ • 5 ดาวแคระ • แถบหิน • เมฆออร์ต</span>
           </div>
 
           <div className="filter-bar" aria-label="ตัวกรองการแสดงผล">
@@ -1977,6 +2424,33 @@ export default function SolarSystem() {
             >
               <span className="filter-symbol">●</span>
               ดวงจันทร์
+            </button>
+            <button
+              type="button"
+              className={showDwarfs ? "active dwarf-filter" : ""}
+              onClick={() => setShowDwarfs((value) => !value)}
+              aria-pressed={showDwarfs}
+            >
+              <span className="filter-symbol">◇</span>
+              ดาวแคระ
+            </button>
+            <button
+              type="button"
+              className={showAsteroids ? "active asteroid-filter" : ""}
+              onClick={() => setShowAsteroids((value) => !value)}
+              aria-pressed={showAsteroids}
+            >
+              <span className="filter-symbol">···</span>
+              แถบดาวเคราะห์น้อย
+            </button>
+            <button
+              type="button"
+              className={showOort ? "active oort-filter" : ""}
+              onClick={() => setShowOort((value) => !value)}
+              aria-pressed={showOort}
+            >
+              <span className="filter-symbol">✦</span>
+              เมฆออร์ต
             </button>
             <button
               type="button"
@@ -2047,6 +2521,23 @@ export default function SolarSystem() {
                     มวลของดวงอาทิตย์ทำให้ดาวเคลื่อนตามทางโค้ง
                   </span>
                 </div>
+              )}
+            </div>
+          )}
+
+          {(showAsteroids || showOort) && (
+            <div className="deep-space-legend">
+              {showAsteroids && (
+                <span className="asteroid-key">
+                  <i aria-hidden="true">•••</i>
+                  แถบดาวเคราะห์น้อย 2.2–3.2 AU
+                </span>
+              )}
+              {showOort && (
+                <span className="oort-key">
+                  <i aria-hidden="true">✦</i>
+                  เมฆออร์ต 2,000–100,000 AU • บีบสเกล
+                </span>
               )}
             </div>
           )}

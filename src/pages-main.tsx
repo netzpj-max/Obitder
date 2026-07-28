@@ -5,7 +5,7 @@ import "../app/globals.css";
 const root = document.getElementById("root");
 
 if (!root) {
-  throw new Error("Orbit Lab root element was not found.");
+  throw new Error("Orbitder Lab root element was not found.");
 }
 
 createRoot(root).render(<SolarSystem />);

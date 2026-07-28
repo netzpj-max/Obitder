@@ -213,6 +213,19 @@ const PLANETS: Planet[] = [
 
 const STAR_NAMES = ["ORION", "SIRIUS", "POLARIS", "BETELGEUSE"];
 
+const TIME_SCALES = [
+  { days: 1, label: "1 วัน/f", description: "1 วันต่อเฟรมเวลา" },
+  { days: 7, label: "1 สัปดาห์/f", description: "1 สัปดาห์ต่อเฟรมเวลา" },
+  { days: 365, label: "1 ปี/f", description: "1 ปีต่อเฟรมเวลา" },
+  { days: 3650, label: "10 ปี/f", description: "10 ปีต่อเฟรมเวลา" },
+  { days: 36500, label: "100 ปี/f", description: "100 ปีต่อเฟรมเวลา" },
+  {
+    days: 365000,
+    label: "1,000 ปี/f",
+    description: "1,000 ปีต่อเฟรมเวลา",
+  },
+] as const;
+
 const FEATURED_MOONS: Record<string, MoonFact[]> = {
   earth: [
     {
@@ -993,7 +1006,7 @@ export default function SolarSystem() {
   } | null>(null);
   const selectedRef = useRef("earth");
   const pausedRef = useRef(false);
-  const speedRef = useRef(1);
+  const daysPerFrameRef = useRef(1);
   const gravityRef = useRef(false);
   const orbitRef = useRef(true);
   const distanceModeRef = useRef<DistanceMode>("compact");
@@ -1003,7 +1016,7 @@ export default function SolarSystem() {
   const [selected, setSelected] = useState("earth");
   const [mode, setMode] = useState<ViewMode>("explore");
   const [paused, setPaused] = useState(false);
-  const [speed, setSpeed] = useState(1);
+  const [daysPerFrame, setDaysPerFrame] = useState(1);
   const [showOrbits, setShowOrbits] = useState(true);
   const [showGravity, setShowGravity] = useState(false);
   const [labels, setLabels] = useState(true);
@@ -1037,8 +1050,8 @@ export default function SolarSystem() {
   }, [paused]);
 
   useEffect(() => {
-    speedRef.current = speed;
-  }, [speed]);
+    daysPerFrameRef.current = daysPerFrame;
+  }, [daysPerFrame]);
 
   useEffect(() => {
     gravityRef.current = showGravity;
@@ -1623,7 +1636,8 @@ export default function SolarSystem() {
     const animate = () => {
       frame = requestAnimationFrame(animate);
       const dt = Math.min(clock.getDelta(), 0.05);
-      if (!pausedRef.current) elapsedDays += dt * 32 * speedRef.current;
+      // A "time frame" advances once per real second, independent of display Hz.
+      if (!pausedRef.current) elapsedDays += dt * daysPerFrameRef.current;
       gravityMix = THREE.MathUtils.lerp(
         gravityMix,
         gravityRef.current ? 1 : 0,
@@ -1824,8 +1838,8 @@ export default function SolarSystem() {
             <span className="brand-orbit two" />
           </span>
           <span>
-            <strong>ORBIT LAB</strong>
-            <small>ห้องทดลองระบบสุริยะ</small>
+            <strong>ORBITDER LAB</strong>
+            <small>ออบิดเด้อ แลป • ห้องทดลองระบบสุริยะ</small>
           </span>
         </button>
 
@@ -2250,15 +2264,17 @@ export default function SolarSystem() {
           <span className="timeline-knob" style={{ left: `${(simDays % 365) / 3.65}%` }} />
         </div>
         <div className="speed-control">
-          <span>ความเร็ว</span>
-          {[0.5, 1, 5, 20].map((value) => (
+          <span>เฟรมเวลา</span>
+          {TIME_SCALES.map((scale) => (
             <button
               type="button"
-              key={value}
-              className={speed === value ? "active" : ""}
-              onClick={() => setSpeed(value)}
+              key={scale.days}
+              className={daysPerFrame === scale.days ? "active" : ""}
+              onClick={() => setDaysPerFrame(scale.days)}
+              aria-label={scale.description}
+              title={scale.description}
             >
-              {value}×
+              {scale.label}
             </button>
           ))}
         </div>

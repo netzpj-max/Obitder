@@ -1,4 +1,4 @@
-name: Deploy Orbit Lab to GitHub Pages
+name: Deploy Orbitder Lab to GitHub Pages
 
 on:
   push:

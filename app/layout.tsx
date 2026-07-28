@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
     incomingHeaders.get("x-forwarded-proto") ??
     (host.startsWith("localhost") ? "http" : "https");
   const baseUrl = new URL(`${protocol}://${host}`);
-  const title = "Orbit Lab — ห้องทดลองระบบสุริยะ";
+  const title = "Orbitder Lab (ออบิดเด้อ แลป) — ห้องทดลองระบบสุริยะ";
   const description =
     "เว็บจำลองระบบสุริยะ 3 มิติสำหรับนักสำรวจอวกาศรุ่นเยาว์";
 
@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: new URL("/og-spacetime.png", baseUrl).toString(),
           width: 1792,
           height: 909,
-          alt: "Orbit Lab — แบบจำลองระบบสุริยะ 3 มิติ",
+          alt: "Orbitder Lab — แบบจำลองระบบสุริยะ 3 มิติ",
         },
       ],
     },

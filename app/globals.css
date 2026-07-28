@@ -199,15 +199,6 @@ button:focus-visible {
   gap: 12px;
 }
 
-.level-pill {
-  padding: 7px 12px;
-  border: 1px solid rgba(103, 211, 255, 0.17);
-  border-radius: 999px;
-  color: #88b7d4;
-  background: rgba(30, 91, 129, 0.13);
-  font-size: 11px;
-}
-
 .round-button {
   width: 34px;
   height: 34px;
@@ -1423,8 +1414,7 @@ button:focus-visible {
     font-size: 14px;
   }
 
-  .brand small,
-  .level-pill {
+  .brand small {
     display: none;
   }
 

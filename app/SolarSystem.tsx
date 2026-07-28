@@ -2284,7 +2284,6 @@ export default function SolarSystem() {
         </nav>
 
         <div className="header-actions">
-          <span className="level-pill">ระดับประถม</span>
           <button
             type="button"
             className="round-button help"

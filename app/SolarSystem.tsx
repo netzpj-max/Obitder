@@ -330,6 +330,54 @@ export default function SolarSystem() {
     grid.position.y = -0.06;
     scene.add(grid);
 
+    // This "rubber sheet" is an intentionally exaggerated 2D slice of curved
+    // spacetime. It gives young learners a visual bridge to the 3D phenomenon.
+    const spacetimeHeight = (radius: number) =>
+      -8.4 / Math.pow(1 + Math.pow(radius / 7.2, 2), 0.72);
+    const spacetimeGeometry = new THREE.PlaneGeometry(104, 104, 52, 52);
+    const spacetimePositions = spacetimeGeometry.attributes
+      .position as THREE.BufferAttribute;
+    for (let i = 0; i < spacetimePositions.count; i += 1) {
+      const x = spacetimePositions.getX(i);
+      const z = spacetimePositions.getY(i);
+      spacetimePositions.setZ(i, spacetimeHeight(Math.hypot(x, z)));
+    }
+    spacetimePositions.needsUpdate = true;
+    spacetimeGeometry.computeVertexNormals();
+
+    const spacetimeSurfaceMaterial = new THREE.MeshStandardMaterial({
+      color: 0x0b5f8c,
+      emissive: 0x062943,
+      emissiveIntensity: 0.8,
+      roughness: 0.84,
+      metalness: 0,
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    const spacetimeWireMaterial = new THREE.MeshBasicMaterial({
+      color: 0x48c7ff,
+      transparent: true,
+      opacity: 0,
+      wireframe: true,
+      depthWrite: false,
+    });
+    const spacetimeSurface = new THREE.Mesh(
+      spacetimeGeometry,
+      spacetimeSurfaceMaterial,
+    );
+    const spacetimeWire = new THREE.Mesh(
+      spacetimeGeometry,
+      spacetimeWireMaterial,
+    );
+    spacetimeSurface.rotation.x = -Math.PI / 2;
+    spacetimeWire.rotation.x = -Math.PI / 2;
+    spacetimeWire.position.y = 0.035;
+    spacetimeSurface.renderOrder = 1;
+    spacetimeWire.renderOrder = 2;
+    scene.add(spacetimeSurface, spacetimeWire);
+
     const sunGroup = new THREE.Group();
     const sun = new THREE.Mesh(
       new THREE.SphereGeometry(3.25, 48, 32),
@@ -542,11 +590,24 @@ export default function SolarSystem() {
     const clock = new THREE.Clock();
     let elapsedDays = 0;
     let lastUiUpdate = 0;
+    let gravityMix = 0;
     let frame = 0;
     const animate = () => {
       frame = requestAnimationFrame(animate);
       const dt = Math.min(clock.getDelta(), 0.05);
       if (!pausedRef.current) elapsedDays += dt * 32 * speedRef.current;
+      gravityMix = THREE.MathUtils.lerp(
+        gravityMix,
+        gravityRef.current ? 1 : 0,
+        0.065,
+      );
+      spacetimeSurfaceMaterial.opacity = gravityMix * 0.1;
+      spacetimeWireMaterial.opacity = gravityMix * 0.34;
+      (grid.material as THREE.LineBasicMaterial).opacity =
+        0.14 * (1 - gravityMix * 0.92);
+      const sunY = -4.95 * gravityMix;
+      sunGroup.position.y = sunY;
+      sunLight.position.y = sunY;
 
       PLANETS.forEach((planet, index) => {
         const angle =
@@ -556,7 +617,10 @@ export default function SolarSystem() {
         const group = planetGroups.get(planet.key);
         const mesh = planetMeshes.get(planet.key);
         if (!group || !mesh) return;
-        group.position.set(x, 0, z);
+        const sheetY =
+          (spacetimeHeight(planet.distance) + planet.radius * 0.48) *
+          gravityMix;
+        group.position.set(x, sheetY, z);
         mesh.rotation.y += dt * (0.35 + 0.7 / Math.max(planet.radius, 0.5));
 
         const selectionRing = group.children.find(
@@ -570,14 +634,14 @@ export default function SolarSystem() {
 
         const line = gravityLines[index];
         const positions = line.geometry.attributes.position as THREE.BufferAttribute;
-        positions.setXYZ(0, 0, 0.08, 0);
-        positions.setXYZ(1, x, 0.08, z);
+        positions.setXYZ(0, 0, sunY + 0.08, 0);
+        positions.setXYZ(1, x, sheetY + 0.08, z);
         positions.needsUpdate = true;
         const mat = line.material as THREE.LineBasicMaterial;
         mat.opacity = gravityRef.current
           ? selectedRef.current === planet.key
-            ? 0.82
-            : 0.16
+            ? 0.38
+            : 0.055
           : 0;
       });
 
@@ -589,6 +653,8 @@ export default function SolarSystem() {
             ? 0.78
             : 0.22
           : 0;
+        line.position.y =
+          (spacetimeHeight(PLANETS[index].distance) + 0.09) * gravityMix;
       });
 
       sun.rotation.y += dt * 0.12;
@@ -774,8 +840,8 @@ export default function SolarSystem() {
                 if (!showGravity) setMode("gravity");
               }}
             >
-              <span className="filter-symbol">↘</span>
-              แรงโน้มถ่วง
+              <span className="filter-symbol">⌄</span>
+              ปริภูมิ–เวลา
             </button>
             <button
               type="button"
@@ -800,10 +866,10 @@ export default function SolarSystem() {
           {showGravity && (
             <div className="gravity-legend">
               <strong>
-                <span className="pulse-dot" /> แรงดึงดูดกำลังทำงาน
+                <span className="pulse-dot" /> ผืนปริภูมิ–เวลาโค้งลง
               </strong>
               <span>
-                ดวงอาทิตย์ดึงดาวทุกดวงไว้ จึงเคลื่อนที่เป็นวงโคจร
+                มวลของดวงอาทิตย์ทำให้ดาวเคลื่อนตามทางโค้ง
               </span>
             </div>
           )}
@@ -880,7 +946,24 @@ export default function SolarSystem() {
             เลือกดาว
           </button>
 
-          {tipOpen && (
+          {showGravity && (
+            <div className="spacetime-explainer">
+              <span className="funnel-symbol" aria-hidden="true">
+                <span />
+              </span>
+              <div>
+                <strong>ลองนึกถึงลูกบอลหนักบนผ้ายาง</strong>
+                <p>
+                  ดวงอาทิตย์ทำให้ปริภูมิ–เวลาโค้ง ดาวเคราะห์จึงวิ่งตามร่องโค้งรอบดวงอาทิตย์
+                </p>
+                <small>
+                  ภาพกรวยนี้ขยายความโค้งให้เห็นง่าย ในอวกาศจริงไม่มีผืนผ้า
+                </small>
+              </div>
+            </div>
+          )}
+
+          {tipOpen && !showGravity && (
             <div className="learn-tip">
               <button
                 type="button"

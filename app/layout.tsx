@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       images: [
         {
-          url: new URL("/og.png", baseUrl).toString(),
+          url: new URL("/og-spacetime.png", baseUrl).toString(),
           width: 1792,
           height: 909,
           alt: "Orbit Lab — แบบจำลองระบบสุริยะ 3 มิติ",
@@ -41,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title,
       description,
-      images: [new URL("/og.png", baseUrl).toString()],
+      images: [new URL("/og-spacetime.png", baseUrl).toString()],
     },
   };
 }

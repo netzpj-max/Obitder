@@ -747,6 +747,86 @@ button:focus-visible {
   line-height: 1.55;
 }
 
+.spacetime-explainer {
+  position: absolute;
+  z-index: 8;
+  left: 22px;
+  bottom: 22px;
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  align-items: center;
+  gap: 12px;
+  width: min(390px, calc(100% - 410px));
+  padding: 13px 15px;
+  border: 1px solid rgba(92, 209, 255, 0.24);
+  border-radius: 11px;
+  background:
+    linear-gradient(135deg, rgba(7, 37, 59, 0.9), rgba(7, 15, 28, 0.92));
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(14px);
+}
+
+.spacetime-explainer strong {
+  color: #c8f2ff;
+  font-size: 10px;
+}
+
+.spacetime-explainer p {
+  margin: 3px 0 4px;
+  color: #7f9db4;
+  font-size: 8px;
+  line-height: 1.55;
+}
+
+.spacetime-explainer small {
+  display: block;
+  padding-top: 4px;
+  border-top: 1px solid rgba(102, 193, 229, 0.12);
+  color: #5f758a;
+  font-size: 7px;
+  line-height: 1.45;
+}
+
+.funnel-symbol {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 34px;
+  border: 1px solid rgba(81, 209, 255, 0.55);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 -8px 12px rgba(13, 111, 158, 0.28),
+    0 0 18px rgba(48, 180, 231, 0.12);
+}
+
+.funnel-symbol::before,
+.funnel-symbol::after {
+  content: "";
+  position: absolute;
+  border: 1px solid rgba(81, 209, 255, 0.38);
+  border-radius: 50%;
+}
+
+.funnel-symbol::before {
+  inset: 6px 9px;
+}
+
+.funnel-symbol::after {
+  inset: 11px 17px;
+  border-color: rgba(255, 176, 74, 0.62);
+}
+
+.funnel-symbol > span {
+  position: relative;
+  z-index: 2;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ffad3e;
+  box-shadow: 0 0 12px rgba(255, 153, 45, 0.85);
+}
+
 .simulation-bar {
   position: relative;
   z-index: 30;
@@ -892,6 +972,12 @@ button:focus-visible {
     display: none;
   }
 
+  .spacetime-explainer {
+    top: 118px;
+    bottom: auto;
+    width: 270px;
+  }
+
   .star-coordinates {
     display: none;
   }
@@ -1011,6 +1097,12 @@ button:focus-visible {
     width: max-content;
   }
 
+  .spacetime-explainer {
+    top: 164px;
+    left: 12px;
+    width: min(275px, calc(100% - 68px));
+  }
+
   .info-card {
     right: 12px;
     bottom: 65px;
@@ -1093,6 +1185,18 @@ button:focus-visible {
     top: 114px;
     max-width: calc(100% - 30px);
     text-align: center;
+  }
+
+  .spacetime-explainer {
+    top: 170px;
+    width: calc(100% - 72px);
+    grid-template-columns: 42px 1fr;
+    padding: 10px;
+  }
+
+  .funnel-symbol {
+    width: 40px;
+    height: 28px;
   }
 
   .info-card {

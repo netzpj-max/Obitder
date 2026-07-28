@@ -359,6 +359,40 @@ button:focus-visible {
   border-top: 1px solid rgba(120, 157, 198, 0.1);
 }
 
+.moon-total {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 14px 7px 0;
+  padding: 10px;
+  border: 1px solid rgba(92, 201, 244, 0.13);
+  border-radius: 8px;
+  background: rgba(35, 103, 142, 0.09);
+}
+
+.moon-total > span:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.moon-total strong {
+  color: #a8d8ea;
+  font-size: 9px;
+}
+
+.moon-total small {
+  margin-top: 2px;
+  color: #4e6980;
+  font-size: 7px;
+}
+
+.moon-cluster {
+  color: #a5bdc9;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-shadow: 0 0 7px rgba(143, 211, 236, 0.45);
+}
+
 .sun-dot {
   width: 28px;
   height: 28px;
@@ -462,6 +496,13 @@ button:focus-visible {
   border-radius: 10px;
   background: rgba(5, 14, 27, 0.78);
   backdrop-filter: blur(12px);
+  max-width: calc(100% - 42px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.filter-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .filter-bar button {
@@ -498,6 +539,30 @@ button:focus-visible {
   color: #ffb04b;
 }
 
+.moon-filter .filter-symbol {
+  color: #d7e8ef;
+  font-size: 8px;
+  text-shadow: 0 0 7px #9cdae8;
+}
+
+.scale-filter .filter-symbol {
+  color: #a9e8ff;
+}
+
+.shadow-filter .filter-symbol {
+  color: #a9c9e8;
+}
+
+.filter-bar button.light-filter {
+  color: #ffe0a6;
+  background: rgba(255, 176, 74, 0.12);
+}
+
+.light-filter .filter-symbol {
+  color: #ffd074;
+  text-shadow: 0 0 8px rgba(255, 193, 90, 0.68);
+}
+
 .selected-label {
   position: absolute;
   z-index: 5;
@@ -524,12 +589,22 @@ button:focus-visible {
   box-shadow: 0 0 8px currentColor;
 }
 
-.gravity-legend {
+.scene-status {
   position: absolute;
   z-index: 6;
   top: 84px;
   left: 50%;
   transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  width: max-content;
+  max-width: calc(100% - 40px);
+}
+
+.gravity-legend,
+.scale-legend {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -540,6 +615,26 @@ button:focus-visible {
   background: rgba(18, 17, 23, 0.72);
   font-size: 8px;
   backdrop-filter: blur(10px);
+}
+
+.scale-legend {
+  border-color: rgba(83, 200, 247, 0.2);
+  background: rgba(6, 27, 43, 0.8);
+}
+
+.scale-legend strong {
+  color: #8de4ff;
+  font-size: 9px;
+}
+
+.scale-legend span {
+  text-align: center;
+}
+
+.scale-legend small {
+  margin-top: 3px;
+  color: #ffd289;
+  font-size: 7px;
 }
 
 .gravity-legend strong {
@@ -610,6 +705,10 @@ button:focus-visible {
     linear-gradient(140deg, rgba(15, 31, 52, 0.92), rgba(6, 15, 28, 0.94));
   box-shadow: 0 20px 65px rgba(0, 0, 0, 0.32), inset 3px 0 var(--accent);
   backdrop-filter: blur(16px);
+  max-height: calc(100% - 44px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(82, 170, 205, 0.35) transparent;
 }
 
 .card-topline {
@@ -697,6 +796,158 @@ button:focus-visible {
 .gravity-copy {
   margin-left: auto;
   color: var(--accent);
+}
+
+.moon-summary {
+  margin: 9px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid rgba(117, 158, 194, 0.1);
+  color: #668198;
+  font-size: 7px;
+  line-height: 1.45;
+}
+
+.moon-explorer {
+  margin-top: 9px;
+  border: 1px solid rgba(100, 175, 207, 0.13);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(8, 24, 39, 0.5);
+}
+
+.moon-explorer-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 9px;
+  border: 0;
+  color: #8ea9bc;
+  background: transparent;
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.moon-explorer-toggle strong {
+  color: #9eddf2;
+  font-size: 8px;
+}
+
+.moon-explorer-body {
+  padding: 0 8px 8px;
+  border-top: 1px solid rgba(100, 175, 207, 0.1);
+}
+
+.moon-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 7px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.moon-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.moon-tabs button {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 7px;
+  border: 1px solid rgba(108, 151, 180, 0.12);
+  border-radius: 999px;
+  color: #607990;
+  background: rgba(24, 48, 68, 0.38);
+  font-size: 7px;
+  cursor: pointer;
+}
+
+.moon-tabs button.active {
+  border-color: rgba(123, 215, 244, 0.3);
+  color: #c8f3ff;
+  background: rgba(52, 138, 176, 0.2);
+}
+
+.moon-tab-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  box-shadow: 0 0 5px currentColor;
+}
+
+.moon-fact-card {
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 7px;
+  background:
+    linear-gradient(135deg, rgba(24, 55, 76, 0.45), rgba(9, 24, 38, 0.56));
+}
+
+.moon-fact-orb {
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  box-shadow:
+    inset -6px -5px 8px rgba(4, 9, 17, 0.46),
+    0 0 12px rgba(169, 216, 233, 0.12);
+}
+
+.moon-fact-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.moon-fact-main > span {
+  color: #536e84;
+  font-size: 6px;
+  letter-spacing: 0.13em;
+}
+
+.moon-fact-main > strong {
+  margin-top: 1px;
+  color: #d8eaf2;
+  font-size: 10px;
+}
+
+.moon-fact-main > small {
+  color: #78b9d1;
+  font-size: 7px;
+}
+
+.moon-fact-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 7px;
+  border-left: 1px solid rgba(111, 163, 193, 0.12);
+}
+
+.moon-fact-stats > span {
+  display: flex;
+  flex-direction: column;
+  color: #536b80;
+  font-size: 6px;
+}
+
+.moon-fact-stats strong {
+  color: #aac5d5;
+  font-size: 7px;
+}
+
+.moon-fact-card > p {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding-top: 6px;
+  border-top: 1px solid rgba(111, 163, 193, 0.1);
+  color: #7990a2;
+  font-size: 7px;
+  line-height: 1.55;
 }
 
 .learn-tip {
@@ -978,6 +1229,10 @@ button:focus-visible {
     width: 270px;
   }
 
+  .scene-status {
+    top: 82px;
+  }
+
   .star-coordinates {
     display: none;
   }
@@ -1092,7 +1347,7 @@ button:focus-visible {
     display: none;
   }
 
-  .gravity-legend {
+  .scene-status {
     top: 112px;
     width: max-content;
   }
@@ -1103,11 +1358,16 @@ button:focus-visible {
     width: min(275px, calc(100% - 68px));
   }
 
+  .spacetime-explainer.with-scale {
+    top: 222px;
+  }
+
   .info-card {
     right: 12px;
     bottom: 65px;
     width: min(300px, calc(100% - 24px));
     padding: 13px;
+    max-height: calc(100% - 128px);
   }
 
   .card-topline h3 {
@@ -1168,20 +1428,24 @@ button:focus-visible {
 
   .filter-bar {
     width: calc(100% - 24px);
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .filter-bar button {
-    flex: 1;
+    flex: 0 0 auto;
     justify-content: center;
     white-space: nowrap;
+  }
+
+  .filter-bar .filter-symbol {
+    display: none;
   }
 
   .zoom-controls {
     top: 132px;
   }
 
-  .gravity-legend {
+  .scene-status {
     top: 114px;
     max-width: calc(100% - 30px);
     text-align: center;
@@ -1192,6 +1456,10 @@ button:focus-visible {
     width: calc(100% - 72px);
     grid-template-columns: 42px 1fr;
     padding: 10px;
+  }
+
+  .spacetime-explainer.with-scale {
+    top: 224px;
   }
 
   .funnel-symbol {

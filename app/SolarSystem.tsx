@@ -4,6 +4,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 type ViewMode = "explore" | "orbit" | "gravity";
+type DistanceMode = "compact" | "real";
+
+type MoonFact = {
+  name: string;
+  english: string;
+  diameter: string;
+  orbit: string;
+  tag: string;
+  fact: string;
+  color: string;
+};
 
 type Planet = {
   key: string;
@@ -22,6 +33,8 @@ type Planet = {
   realDistance: string;
   gravity: string;
   tilt: number;
+  realAu: number;
+  majorMoons: string[];
 };
 
 const PLANETS: Planet[] = [
@@ -42,6 +55,8 @@ const PLANETS: Planet[] = [
     realDistance: "57.9 ล้าน กม.",
     gravity: "0.38 เท่าของโลก",
     tilt: 0.03,
+    realAu: 0.387,
+    majorMoons: [],
   },
   {
     key: "venus",
@@ -60,6 +75,8 @@ const PLANETS: Planet[] = [
     realDistance: "108.2 ล้าน กม.",
     gravity: "0.90 เท่าของโลก",
     tilt: 177.4,
+    realAu: 0.723,
+    majorMoons: [],
   },
   {
     key: "earth",
@@ -78,6 +95,8 @@ const PLANETS: Planet[] = [
     realDistance: "149.6 ล้าน กม.",
     gravity: "1.00 เท่า",
     tilt: 23.4,
+    realAu: 1,
+    majorMoons: ["ดวงจันทร์"],
   },
   {
     key: "mars",
@@ -96,6 +115,8 @@ const PLANETS: Planet[] = [
     realDistance: "227.9 ล้าน กม.",
     gravity: "0.38 เท่าของโลก",
     tilt: 25.2,
+    realAu: 1.524,
+    majorMoons: ["โฟบอส", "ดีมอส"],
   },
   {
     key: "jupiter",
@@ -108,12 +129,14 @@ const PLANETS: Planet[] = [
     period: 4333,
     day: "9.9 ชั่วโมง",
     temp: "−110°C",
-    moons: 95,
+    moons: 101,
     fact: "ดาวเคราะห์ที่ใหญ่ที่สุด มีพายุจุดแดงยักษ์ใหญ่กว่าโลก",
     kind: "ดาวแก๊สยักษ์",
     realDistance: "778.5 ล้าน กม.",
     gravity: "2.53 เท่าของโลก",
     tilt: 3.1,
+    realAu: 5.203,
+    majorMoons: ["ไอโอ", "ยูโรปา", "แกนีมีด", "คัลลิสโต"],
   },
   {
     key: "saturn",
@@ -126,12 +149,14 @@ const PLANETS: Planet[] = [
     period: 10759,
     day: "10.7 ชั่วโมง",
     temp: "−140°C",
-    moons: 146,
+    moons: 274,
     fact: "วงแหวนเกิดจากก้อนน้ำแข็งและหินนับล้านชิ้น",
     kind: "ดาวแก๊สยักษ์",
     realDistance: "1,434 ล้าน กม.",
     gravity: "1.07 เท่าของโลก",
     tilt: 26.7,
+    realAu: 9.537,
+    majorMoons: ["ไททัน", "เอนเซลาดัส", "รีอา", "ไอแอพิตัส"],
   },
   {
     key: "uranus",
@@ -150,6 +175,8 @@ const PLANETS: Planet[] = [
     realDistance: "2,871 ล้าน กม.",
     gravity: "0.89 เท่าของโลก",
     tilt: 97.8,
+    realAu: 19.191,
+    majorMoons: ["มิแรนดา", "แอเรียล", "อัมเบรียล", "ไททาเนีย", "โอเบอรอน"],
   },
   {
     key: "neptune",
@@ -168,10 +195,144 @@ const PLANETS: Planet[] = [
     realDistance: "4,495 ล้าน กม.",
     gravity: "1.14 เท่าของโลก",
     tilt: 28.3,
+    realAu: 30.07,
+    majorMoons: ["ไทรทัน", "เนรีด", "โพรทีอุส"],
   },
 ];
 
 const STAR_NAMES = ["ORION", "SIRIUS", "POLARIS", "BETELGEUSE"];
+
+const FEATURED_MOONS: Record<string, MoonFact[]> = {
+  earth: [
+    {
+      name: "ดวงจันทร์",
+      english: "THE MOON",
+      diameter: "3,475 กม.",
+      orbit: "27.3 วัน",
+      tag: "เพื่อนคู่โลก",
+      fact: "ช่วยให้แกนหมุนของโลกมั่นคง และเป็นโลกอื่นเพียงแห่งเดียวที่มนุษย์เคยเดินทางไปถึง",
+      color: "#c9d1d4",
+    },
+  ],
+  mars: [
+    {
+      name: "โฟบอส",
+      english: "PHOBOS",
+      diameter: "ประมาณ 22 กม.",
+      orbit: "7 ชม. 39 นาที",
+      tag: "กำลังเข้าใกล้ดาวอังคาร",
+      fact: "โคจรใกล้ดาวอังคารมากและค่อย ๆ ลดระดับลง ในอนาคตอาจแตกเป็นวงแหวน",
+      color: "#a8947d",
+    },
+    {
+      name: "ดีมอส",
+      english: "DEIMOS",
+      diameter: "ประมาณ 12 กม.",
+      orbit: "30.3 ชั่วโมง",
+      tag: "เล็กและอยู่ไกลกว่า",
+      fact: "มีรูปร่างไม่กลม ผิวดูเรียบกว่าโฟบอสเพราะฝุ่นปกคลุมหลุมอุกกาบาต",
+      color: "#b3a18e",
+    },
+  ],
+  jupiter: [
+    {
+      name: "ไอโอ",
+      english: "IO",
+      diameter: "3,643 กม.",
+      orbit: "1.8 วัน",
+      tag: "ภูเขาไฟมากที่สุด",
+      fact: "แรงดึงจากดาวพฤหัสบดีและดวงจันทร์ข้างเคียงบีบไอโอจนเกิดภูเขาไฟหลายร้อยแห่ง",
+      color: "#e4b84f",
+    },
+    {
+      name: "ยูโรปา",
+      english: "EUROPA",
+      diameter: "3,100 กม.",
+      orbit: "3.5 วัน",
+      tag: "มหาสมุทรใต้เปลือกน้ำแข็ง",
+      fact: "ใต้ผิวน้ำแข็งอาจมีน้ำมากกว่ามหาสมุทรทั้งหมดบนโลก และอาจมีส่วนประกอบที่เหมาะต่อชีวิต",
+      color: "#d9cbb2",
+    },
+    {
+      name: "แกนีมีด",
+      english: "GANYMEDE",
+      diameter: "5,260 กม.",
+      orbit: "7.2 วัน",
+      tag: "ดวงจันทร์ใหญ่ที่สุด",
+      fact: "ใหญ่กว่าดาวพุธ และเป็นดวงจันทร์เพียงดวงที่รู้ว่ามีสนามแม่เหล็กของตนเอง",
+      color: "#a99b86",
+    },
+    {
+      name: "คัลลิสโต",
+      english: "CALLISTO",
+      diameter: "4,821 กม.",
+      orbit: "16.7 วัน",
+      tag: "โลกแห่งหลุมอุกกาบาต",
+      fact: "พื้นผิวมีหลุมอุกกาบาตหนาแน่นมาก และอาจซ่อนมหาสมุทรเค็มไว้ใต้พื้นผิว",
+      color: "#75685d",
+    },
+  ],
+  saturn: [
+    {
+      name: "ไททัน",
+      english: "TITAN",
+      diameter: "5,150 กม.",
+      orbit: "15.9 วัน",
+      tag: "มีทะเลสาบและบรรยากาศ",
+      fact: "เป็นดวงจันทร์เดียวที่มีบรรยากาศหนาแน่น และมีแม่น้ำกับทะเลสาบมีเทนบนพื้นผิว",
+      color: "#d9a851",
+    },
+    {
+      name: "เอนเซลาดัส",
+      english: "ENCELADUS",
+      diameter: "504 กม.",
+      orbit: "1.37 วัน",
+      tag: "พ่นน้ำแข็งสู่อวกาศ",
+      fact: "มีมหาสมุทรทั่วทั้งดวงอยู่ใต้เปลือกน้ำแข็ง และพ่นไอน้ำกับสารอินทรีย์ออกจากขั้วใต้",
+      color: "#e8f2f5",
+    },
+    {
+      name: "ไมมัส",
+      english: "MIMAS",
+      diameter: "396 กม.",
+      orbit: "22.6 ชั่วโมง",
+      tag: "หลุมเฮอร์เชลยักษ์",
+      fact: "หลุมอุกกาบาตขนาดใหญ่ทำให้ไมมัสดูคล้ายสถานีอวกาศในภาพยนตร์",
+      color: "#bfc4c5",
+    },
+  ],
+  uranus: [
+    {
+      name: "มิแรนดา",
+      english: "MIRANDA",
+      diameter: "ประมาณ 500 กม.",
+      orbit: "1.41 วัน",
+      tag: "หน้าผาสูงและพื้นผิวแปลก",
+      fact: "มีภูมิประเทศปะติดปะต่อและหน้าผาขนาดมหึมา ราวกับดวงจันทร์เคยแตกแล้วประกอบใหม่",
+      color: "#b8c4c5",
+    },
+    {
+      name: "ไททาเนีย",
+      english: "TITANIA",
+      diameter: "1,578 กม.",
+      orbit: "8.7 วัน",
+      tag: "ดวงใหญ่ที่สุดของยูเรนัส",
+      fact: "มีหุบเขาและรอยเลื่อนยาว บอกว่าภายในอาจเคยขยายตัวและดันเปลือกน้ำแข็งให้แตก",
+      color: "#a7b5b8",
+    },
+  ],
+  neptune: [
+    {
+      name: "ไทรทัน",
+      english: "TRITON",
+      diameter: "2,700 กม.",
+      orbit: "5.9 วัน",
+      tag: "โคจรย้อนทาง",
+      fact: "เป็นดวงจันทร์ขนาดใหญ่เพียงดวงที่โคจรสวนทางการหมุนของดาวแม่ และมีน้ำพุไนโตรเจนเย็นจัด",
+      color: "#c9b7aa",
+    },
+  ],
+};
 
 function formatPeriod(days: number) {
   if (days < 1000) return `${days.toLocaleString("th-TH")} วัน`;
@@ -203,12 +364,16 @@ export default function SolarSystem() {
     reset: () => void;
     zoom: (delta: number) => void;
     focus: (key: string) => void;
+    setDistanceMode: (mode: DistanceMode) => void;
   } | null>(null);
   const selectedRef = useRef("earth");
   const pausedRef = useRef(false);
   const speedRef = useRef(1);
   const gravityRef = useRef(false);
   const orbitRef = useRef(true);
+  const distanceModeRef = useRef<DistanceMode>("compact");
+  const moonsRef = useRef(true);
+  const shadowsRef = useRef(true);
 
   const [selected, setSelected] = useState("earth");
   const [mode, setMode] = useState<ViewMode>("explore");
@@ -217,6 +382,12 @@ export default function SolarSystem() {
   const [showOrbits, setShowOrbits] = useState(true);
   const [showGravity, setShowGravity] = useState(false);
   const [labels, setLabels] = useState(true);
+  const [showMoons, setShowMoons] = useState(true);
+  const [distanceMode, setDistanceMode] =
+    useState<DistanceMode>("compact");
+  const [showShadows, setShowShadows] = useState(true);
+  const [moonFactIndex, setMoonFactIndex] = useState(0);
+  const [moonDetailsOpen, setMoonDetailsOpen] = useState(true);
   const [panelOpen, setPanelOpen] = useState(true);
   const [tipOpen, setTipOpen] = useState(true);
   const [simDays, setSimDays] = useState(0);
@@ -225,9 +396,13 @@ export default function SolarSystem() {
     () => PLANETS.find((p) => p.key === selected) ?? PLANETS[2],
     [selected],
   );
+  const activeMoonFacts = FEATURED_MOONS[selected] ?? [];
+  const activeMoonFact =
+    activeMoonFacts[Math.min(moonFactIndex, activeMoonFacts.length - 1)];
 
   useEffect(() => {
     selectedRef.current = selected;
+    setMoonFactIndex(0);
     sceneApi.current?.focus(selected);
   }, [selected]);
 
@@ -246,6 +421,19 @@ export default function SolarSystem() {
   useEffect(() => {
     orbitRef.current = showOrbits;
   }, [showOrbits]);
+
+  useEffect(() => {
+    moonsRef.current = showMoons;
+  }, [showMoons]);
+
+  useEffect(() => {
+    shadowsRef.current = showShadows;
+  }, [showShadows]);
+
+  useEffect(() => {
+    distanceModeRef.current = distanceMode;
+    sceneApi.current?.setDistanceMode(distanceMode);
+  }, [distanceMode]);
 
   const chooseMode = useCallback((next: ViewMode) => {
     setMode(next);
@@ -275,17 +463,24 @@ export default function SolarSystem() {
 
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x050a18, 0.0065);
-    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 300);
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 1400);
 
     let yaw = -0.45;
     let pitch = 0.93;
     let cameraDistance = 62;
     let targetDistance = 62;
+    let focusPlanet = false;
     const cameraTarget = new THREE.Vector3(0, 0, 0);
     const targetLook = new THREE.Vector3(0, 0, 0);
 
     const ambient = new THREE.AmbientLight(0x4c6090, 0.52);
     scene.add(ambient);
+    const learningLight = new THREE.HemisphereLight(
+      0xd9efff,
+      0x26344d,
+      0,
+    );
+    scene.add(learningLight);
     const sunLight = new THREE.PointLight(0xffd49b, 900, 120, 1.55);
     scene.add(sunLight);
 
@@ -401,6 +596,17 @@ export default function SolarSystem() {
     const gravityLines: THREE.Line[] = [];
     const planetMeshes = new Map<string, THREE.Mesh>();
     const planetGroups = new Map<string, THREE.Group>();
+    const moonSystems = new Map<
+      string,
+      {
+        mesh: THREE.InstancedMesh;
+        phases: Float32Array;
+        radii: Float32Array;
+        speeds: Float32Array;
+        tilts: Float32Array;
+        sizes: Float32Array;
+      }
+    >();
     const selectable: THREE.Object3D[] = [sun];
 
     PLANETS.forEach((planet, index) => {
@@ -409,9 +615,9 @@ export default function SolarSystem() {
         const a = (i / 160) * Math.PI * 2;
         points.push(
           new THREE.Vector3(
-            Math.cos(a) * planet.distance,
+            Math.cos(a),
             0,
-            Math.sin(a) * planet.distance * 0.97,
+            Math.sin(a) * 0.97,
           ),
         );
       }
@@ -423,6 +629,7 @@ export default function SolarSystem() {
           opacity: index === 2 ? 0.48 : 0.27,
         }),
       );
+      orbit.scale.setScalar(planet.distance);
       orbitLines.push(orbit);
       scene.add(orbit);
 
@@ -464,6 +671,65 @@ export default function SolarSystem() {
         );
         ring.rotation.x = Math.PI / 2.25;
         group.add(ring);
+      }
+
+      if (planet.moons > 0) {
+        const moonGeometry = new THREE.SphereGeometry(0.075, 7, 5);
+        const moonMaterial = new THREE.MeshStandardMaterial({
+          color: 0xb8c5cf,
+          roughness: 0.92,
+          metalness: 0,
+        });
+        const moonMesh = new THREE.InstancedMesh(
+          moonGeometry,
+          moonMaterial,
+          planet.moons,
+        );
+        const phases = new Float32Array(planet.moons);
+        const radii = new Float32Array(planet.moons);
+        const speeds = new Float32Array(planet.moons);
+        const tilts = new Float32Array(planet.moons);
+        const sizes = new Float32Array(planet.moons);
+        const color = new THREE.Color();
+
+        for (let moonIndex = 0; moonIndex < planet.moons; moonIndex += 1) {
+          const lane = moonIndex % 11;
+          const family = Math.floor(moonIndex / 11);
+          phases[moonIndex] =
+            (moonIndex / Math.max(planet.moons, 1)) * Math.PI * 2 +
+            lane * 0.31;
+          radii[moonIndex] =
+            planet.radius * 1.55 + 0.72 + lane * 0.2 + family * 0.026;
+          speeds[moonIndex] = 0.006 + (moonIndex % 13) * 0.00075;
+          tilts[moonIndex] =
+            ((moonIndex % 7) - 3) * 0.055 +
+            (family % 2 === 0 ? 0.035 : -0.035);
+          sizes[moonIndex] =
+            moonIndex < planet.majorMoons.length
+              ? planet.key === "earth"
+                ? 3.1
+                : 1.65 + (moonIndex % 3) * 0.22
+              : 0.55 + (moonIndex % 5) * 0.1;
+          moonMesh.setColorAt(
+            moonIndex,
+            color.set(
+              moonIndex < planet.majorMoons.length ? 0xe7d4b7 : 0x849aa9,
+            ),
+          );
+        }
+        moonMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        if (moonMesh.instanceColor) moonMesh.instanceColor.needsUpdate = true;
+        moonMesh.frustumCulled = false;
+        moonMesh.renderOrder = 4;
+        moonSystems.set(planet.key, {
+          mesh: moonMesh,
+          phases,
+          radii,
+          speeds,
+          tilts,
+          sizes,
+        });
+        group.add(moonMesh);
       }
 
       const selectionRing = new THREE.Mesh(
@@ -571,19 +837,33 @@ export default function SolarSystem() {
       reset: () => {
         yaw = -0.45;
         pitch = 0.93;
-        targetDistance = 62;
+        targetDistance = distanceModeRef.current === "real" ? 470 : 62;
+        focusPlanet = false;
         targetLook.set(0, 0, 0);
       },
       zoom: (delta: number) => {
+        const zoomStep = distanceModeRef.current === "real" ? delta * 5 : delta;
         targetDistance = THREE.MathUtils.clamp(
-          targetDistance + delta,
+          targetDistance + zoomStep,
           22,
-          92,
+          distanceModeRef.current === "real" ? 680 : 92,
         );
       },
       focus: (key: string) => {
         const planet = PLANETS.find((item) => item.key === key);
-        if (planet) targetDistance = Math.max(26, planet.distance + 17);
+        if (!planet) return;
+        if (distanceModeRef.current === "real") {
+          focusPlanet = true;
+          targetDistance = Math.max(24, planet.radius * 7 + 18);
+        } else {
+          targetDistance = Math.max(26, planet.distance + 17);
+          focusPlanet = targetDistance < 52;
+        }
+      },
+      setDistanceMode: (nextMode: DistanceMode) => {
+        focusPlanet = false;
+        targetLook.set(0, 0, 0);
+        targetDistance = nextMode === "real" ? 470 : 62;
       },
     };
 
@@ -591,6 +871,8 @@ export default function SolarSystem() {
     let elapsedDays = 0;
     let lastUiUpdate = 0;
     let gravityMix = 0;
+    let distanceMix = 0;
+    const moonTransform = new THREE.Object3D();
     let frame = 0;
     const animate = () => {
       frame = requestAnimationFrame(animate);
@@ -601,8 +883,33 @@ export default function SolarSystem() {
         gravityRef.current ? 1 : 0,
         0.065,
       );
+      distanceMix = THREE.MathUtils.lerp(
+        distanceMix,
+        distanceModeRef.current === "real" ? 1 : 0,
+        0.045,
+      );
+      const sheetScale = 1 + distanceMix * 7;
       spacetimeSurfaceMaterial.opacity = gravityMix * 0.1;
       spacetimeWireMaterial.opacity = gravityMix * 0.34;
+      spacetimeSurface.scale.set(sheetScale, sheetScale, 1);
+      spacetimeWire.scale.set(sheetScale, sheetScale, 1);
+      grid.scale.set(sheetScale, 1, sheetScale);
+      stars.scale.setScalar(1 + distanceMix * 3.4);
+      (scene.fog as THREE.FogExp2).density = THREE.MathUtils.lerp(
+        0.0065,
+        0.00075,
+        distanceMix,
+      );
+      ambient.intensity = THREE.MathUtils.lerp(
+        ambient.intensity,
+        shadowsRef.current ? 0.52 : 1.35,
+        0.08,
+      );
+      learningLight.intensity = THREE.MathUtils.lerp(
+        learningLight.intensity,
+        shadowsRef.current ? 0 : 1.75,
+        0.08,
+      );
       (grid.material as THREE.LineBasicMaterial).opacity =
         0.14 * (1 - gravityMix * 0.92);
       const sunY = -4.95 * gravityMix;
@@ -610,15 +917,21 @@ export default function SolarSystem() {
       sunLight.position.y = sunY;
 
       PLANETS.forEach((planet, index) => {
+        const displayDistance = THREE.MathUtils.lerp(
+          planet.distance,
+          planet.realAu * 13.5,
+          distanceMix,
+        );
         const angle =
           (elapsedDays / planet.period) * Math.PI * 2 + index * 0.72 + 0.2;
-        const x = Math.cos(angle) * planet.distance;
-        const z = Math.sin(angle) * planet.distance * 0.97;
+        const x = Math.cos(angle) * displayDistance;
+        const z = Math.sin(angle) * displayDistance * 0.97;
         const group = planetGroups.get(planet.key);
         const mesh = planetMeshes.get(planet.key);
         if (!group || !mesh) return;
         const sheetY =
-          (spacetimeHeight(planet.distance) + planet.radius * 0.48) *
+          (spacetimeHeight(displayDistance / sheetScale) +
+            planet.radius * 0.48) *
           gravityMix;
         group.position.set(x, sheetY, z);
         mesh.rotation.y += dt * (0.35 + 0.7 / Math.max(planet.radius, 0.5));
@@ -643,6 +956,35 @@ export default function SolarSystem() {
             ? 0.38
             : 0.055
           : 0;
+
+        const moonSystem = moonSystems.get(planet.key);
+        if (moonSystem) {
+          moonSystem.mesh.visible = moonsRef.current;
+          if (moonsRef.current) {
+            for (
+              let moonIndex = 0;
+              moonIndex < moonSystem.phases.length;
+              moonIndex += 1
+            ) {
+              const moonAngle =
+                moonSystem.phases[moonIndex] +
+                elapsedDays * moonSystem.speeds[moonIndex];
+              const moonRadius = moonSystem.radii[moonIndex];
+              moonTransform.position.set(
+                Math.cos(moonAngle) * moonRadius,
+                Math.sin(moonAngle * 0.73) *
+                  moonRadius *
+                  moonSystem.tilts[moonIndex],
+                Math.sin(moonAngle) * moonRadius,
+              );
+              moonTransform.rotation.set(0, moonAngle, 0);
+              moonTransform.scale.setScalar(moonSystem.sizes[moonIndex]);
+              moonTransform.updateMatrix();
+              moonSystem.mesh.setMatrixAt(moonIndex, moonTransform.matrix);
+            }
+            moonSystem.mesh.instanceMatrix.needsUpdate = true;
+          }
+        }
       });
 
       orbitLines.forEach((line, index) => {
@@ -653,8 +995,15 @@ export default function SolarSystem() {
             ? 0.78
             : 0.22
           : 0;
+        const displayDistance = THREE.MathUtils.lerp(
+          PLANETS[index].distance,
+          PLANETS[index].realAu * 13.5,
+          distanceMix,
+        );
+        line.scale.setScalar(displayDistance);
         line.position.y =
-          (spacetimeHeight(PLANETS[index].distance) + 0.09) * gravityMix;
+          (spacetimeHeight(displayDistance / sheetScale) + 0.09) *
+          gravityMix;
       });
 
       sun.rotation.y += dt * 0.12;
@@ -662,7 +1011,7 @@ export default function SolarSystem() {
       stars.rotation.y += dt * 0.002;
 
       const focused = planetGroups.get(selectedRef.current);
-      if (focused && targetDistance < 52) {
+      if (focused && focusPlanet) {
         targetLook.lerp(focused.position, 0.025);
       } else {
         targetLook.lerp(cameraTarget, 0.025);
@@ -797,6 +1146,14 @@ export default function SolarSystem() {
             ))}
           </div>
 
+          <div className="moon-total">
+            <span className="moon-cluster" aria-hidden="true">● · •</span>
+            <span>
+              <strong>ดวงจันทร์ทั้งหมด 422 ดวง</strong>
+              <small>จำนวนที่ยืนยันโดย NASA / IAU</small>
+            </span>
+          </div>
+
           <div className="sun-note">
             <span className="sun-dot" />
             <span>
@@ -845,6 +1202,42 @@ export default function SolarSystem() {
             </button>
             <button
               type="button"
+              className={showMoons ? "active moon-filter" : ""}
+              onClick={() => setShowMoons((value) => !value)}
+              aria-pressed={showMoons}
+            >
+              <span className="filter-symbol">●</span>
+              ดวงจันทร์
+            </button>
+            <button
+              type="button"
+              className={distanceMode === "real" ? "active scale-filter" : ""}
+              onClick={() =>
+                setDistanceMode((value) =>
+                  value === "compact" ? "real" : "compact",
+                )
+              }
+              aria-pressed={distanceMode === "real"}
+            >
+              <span className="filter-symbol">↔</span>
+              {distanceMode === "real" ? "ระยะจริง" : "ระยะดูง่าย"}
+            </button>
+            <button
+              type="button"
+              className={showShadows ? "active shadow-filter" : "light-filter"}
+              onClick={() => setShowShadows((value) => !value)}
+              aria-pressed={showShadows}
+              aria-label={
+                showShadows
+                  ? "ปิดเงาและเพิ่มแสงให้ดาวไกล"
+                  : "เปิดเงาตามทิศทางแสง"
+              }
+            >
+              <span className="filter-symbol">◐</span>
+              {showShadows ? "เปิดเงา" : "เพิ่มแสง"}
+            </button>
+            <button
+              type="button"
               className={labels ? "active" : ""}
               onClick={() => setLabels((value) => !value)}
             >
@@ -863,14 +1256,29 @@ export default function SolarSystem() {
             </div>
           )}
 
-          {showGravity && (
-            <div className="gravity-legend">
-              <strong>
-                <span className="pulse-dot" /> ผืนปริภูมิ–เวลาโค้งลง
-              </strong>
-              <span>
-                มวลของดวงอาทิตย์ทำให้ดาวเคลื่อนตามทางโค้ง
-              </span>
+          {(showGravity || distanceMode === "real") && (
+            <div className="scene-status">
+              {distanceMode === "real" && (
+                <div className="scale-legend">
+                  <strong>↔ สเกลระยะทางจริง</strong>
+                  <span>
+                    1 AU = ระยะโลกถึงดวงอาทิตย์ • ขนาดดาวขยายเพื่อให้มองเห็น
+                  </span>
+                  {!showShadows && (
+                    <small>เปิดแสงช่วยมองเห็นดาวชั้นนอกแล้ว</small>
+                  )}
+                </div>
+              )}
+              {showGravity && (
+                <div className="gravity-legend">
+                  <strong>
+                    <span className="pulse-dot" /> ผืนปริภูมิ–เวลาโค้งลง
+                  </strong>
+                  <span>
+                    มวลของดวงอาทิตย์ทำให้ดาวเคลื่อนตามทางโค้ง
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
@@ -935,6 +1343,78 @@ export default function SolarSystem() {
                 แรงโน้มถ่วง {activePlanet.gravity}
               </span>
             </div>
+            <p className="moon-summary">
+              {activePlanet.moons === 0
+                ? "ดาวดวงนี้ไม่มีดวงจันทร์บริวาร"
+                : `ดวงเด่น: ${activePlanet.majorMoons.join(" • ")}`}
+            </p>
+            {activeMoonFacts.length > 0 && activeMoonFact && (
+              <section
+                className={`moon-explorer ${
+                  moonDetailsOpen ? "open" : ""
+                }`}
+                aria-label={`ข้อมูลดวงจันทร์ของ${activePlanet.name}`}
+              >
+                <button
+                  type="button"
+                  className="moon-explorer-toggle"
+                  onClick={() => setMoonDetailsOpen((value) => !value)}
+                  aria-expanded={moonDetailsOpen}
+                >
+                  <span>ดวงจันทร์น่าสนใจ</span>
+                  <strong>
+                    {activeMoonFacts.length} ดวง{" "}
+                    {moonDetailsOpen ? "⌃" : "⌄"}
+                  </strong>
+                </button>
+                {moonDetailsOpen && (
+                  <div className="moon-explorer-body">
+                    <div className="moon-tabs" role="tablist">
+                      {activeMoonFacts.map((moon, index) => (
+                        <button
+                          key={moon.english}
+                          type="button"
+                          role="tab"
+                          aria-selected={moonFactIndex === index}
+                          className={moonFactIndex === index ? "active" : ""}
+                          onClick={() => setMoonFactIndex(index)}
+                        >
+                          <span
+                            className="moon-tab-dot"
+                            style={{ background: moon.color }}
+                          />
+                          {moon.name}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="moon-fact-card" role="tabpanel">
+                      <div
+                        className="moon-fact-orb"
+                        style={{
+                          background: `radial-gradient(circle at 34% 28%, #f4f8fa, ${activeMoonFact.color} 48%, #35404b 120%)`,
+                        }}
+                      />
+                      <div className="moon-fact-main">
+                        <span>{activeMoonFact.english}</span>
+                        <strong>{activeMoonFact.name}</strong>
+                        <small>{activeMoonFact.tag}</small>
+                      </div>
+                      <div className="moon-fact-stats">
+                        <span>
+                          เส้นผ่านศูนย์กลาง
+                          <strong>{activeMoonFact.diameter}</strong>
+                        </span>
+                        <span>
+                          เวลาโคจร
+                          <strong>{activeMoonFact.orbit}</strong>
+                        </span>
+                      </div>
+                      <p>{activeMoonFact.fact}</p>
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
           </article>
 
           <button
@@ -947,7 +1427,11 @@ export default function SolarSystem() {
           </button>
 
           {showGravity && (
-            <div className="spacetime-explainer">
+            <div
+              className={`spacetime-explainer ${
+                distanceMode === "real" ? "with-scale" : ""
+              }`}
+            >
               <span className="funnel-symbol" aria-hidden="true">
                 <span />
               </span>

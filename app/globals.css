@@ -807,6 +807,24 @@ button:focus-visible {
   line-height: 1.45;
 }
 
+.moon-orbit-note {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 5px 0 0;
+  color: #638ca5;
+  font-size: 6.5px;
+  line-height: 1.45;
+}
+
+.moon-orbit-note > span {
+  width: 11px;
+  height: 4px;
+  flex: 0 0 auto;
+  border-top: 1px solid rgba(109, 199, 241, 0.85);
+  border-radius: 50%;
+}
+
 .moon-explorer {
   margin-top: 9px;
   border: 1px solid rgba(100, 175, 207, 0.13);

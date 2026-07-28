@@ -16,6 +16,17 @@ type MoonFact = {
   color: string;
 };
 
+type MoonOrbit = {
+  name: string;
+  semiMajorKm: number;
+  periodDays: number;
+  eccentricity: number;
+  inclinationDeg: number;
+  nodeDeg: number;
+  periapsisDeg: number;
+  phaseDeg: number;
+};
+
 type Planet = {
   key: string;
   name: string;
@@ -334,6 +345,620 @@ const FEATURED_MOONS: Record<string, MoonFact[]> = {
   ],
 };
 
+// Mean orbital elements from JPL SSD. The remaining small moons are generated
+// deterministically in visually representative regular/irregular moon families.
+const REAL_MOON_ORBITS: Record<string, MoonOrbit[]> = {
+  earth: [
+    {
+      name: "Moon",
+      semiMajorKm: 384400,
+      periodDays: 27.322,
+      eccentricity: 0.0554,
+      inclinationDeg: 5.16,
+      nodeDeg: 125.08,
+      periapsisDeg: 318.15,
+      phaseDeg: 135.27,
+    },
+  ],
+  mars: [
+    {
+      name: "Phobos",
+      semiMajorKm: 9375,
+      periodDays: 0.3187,
+      eccentricity: 0.015,
+      inclinationDeg: 1.1,
+      nodeDeg: 169.2,
+      periapsisDeg: 216.3,
+      phaseDeg: 189.7,
+    },
+    {
+      name: "Deimos",
+      semiMajorKm: 23457,
+      periodDays: 1.2625,
+      eccentricity: 0,
+      inclinationDeg: 1.8,
+      nodeDeg: 54.3,
+      periapsisDeg: 0,
+      phaseDeg: 205,
+    },
+  ],
+  jupiter: [
+    {
+      name: "Io",
+      semiMajorKm: 421800,
+      periodDays: 1.762732,
+      eccentricity: 0.004,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 49.1,
+      phaseDeg: 330.9,
+    },
+    {
+      name: "Europa",
+      semiMajorKm: 671100,
+      periodDays: 3.525463,
+      eccentricity: 0.009,
+      inclinationDeg: 0.5,
+      nodeDeg: 184,
+      periapsisDeg: 45,
+      phaseDeg: 345.4,
+    },
+    {
+      name: "Ganymede",
+      semiMajorKm: 1070400,
+      periodDays: 7.155588,
+      eccentricity: 0.001,
+      inclinationDeg: 0.2,
+      nodeDeg: 58.5,
+      periapsisDeg: 198.3,
+      phaseDeg: 324.8,
+    },
+    {
+      name: "Callisto",
+      semiMajorKm: 1882700,
+      periodDays: 16.69044,
+      eccentricity: 0.007,
+      inclinationDeg: 0.3,
+      nodeDeg: 309.1,
+      periapsisDeg: 43.8,
+      phaseDeg: 87.4,
+    },
+    {
+      name: "Metis",
+      semiMajorKm: 128000,
+      periodDays: 0.294779,
+      eccentricity: 0,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 0,
+      phaseDeg: 166,
+    },
+    {
+      name: "Adrastea",
+      semiMajorKm: 129000,
+      periodDays: 0.29826,
+      eccentricity: 0,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 0,
+      phaseDeg: 214.5,
+    },
+    {
+      name: "Amalthea",
+      semiMajorKm: 181400,
+      periodDays: 0.499918,
+      eccentricity: 0.003,
+      inclinationDeg: 0.4,
+      nodeDeg: 282.9,
+      periapsisDeg: 180.1,
+      phaseDeg: 310.6,
+    },
+    {
+      name: "Thebe",
+      semiMajorKm: 221900,
+      periodDays: 0.676105,
+      eccentricity: 0.018,
+      inclinationDeg: 1.1,
+      nodeDeg: 340.4,
+      periapsisDeg: 26.6,
+      phaseDeg: 182.1,
+    },
+    {
+      name: "Himalia",
+      semiMajorKm: 11439000,
+      periodDays: 249.909,
+      eccentricity: 0.16,
+      inclinationDeg: 28.4,
+      nodeDeg: 64.2,
+      periapsisDeg: 321.1,
+      phaseDeg: 78.3,
+    },
+    {
+      name: "Elara",
+      semiMajorKm: 11710700,
+      periodDays: 258.8861,
+      eccentricity: 0.212,
+      inclinationDeg: 27.8,
+      nodeDeg: 112.8,
+      periapsisDeg: 129.9,
+      phaseDeg: 346.9,
+    },
+    {
+      name: "Pasiphae",
+      semiMajorKm: 23463200,
+      periodDays: 734.4215,
+      eccentricity: 0.412,
+      inclinationDeg: 148.3,
+      nodeDeg: 315.7,
+      periapsisDeg: 172.8,
+      phaseDeg: 279.3,
+    },
+    {
+      name: "Carme",
+      semiMajorKm: 23139200,
+      periodDays: 719.2806,
+      eccentricity: 0.261,
+      inclinationDeg: 164.6,
+      nodeDeg: 115.5,
+      periapsisDeg: 6.5,
+      phaseDeg: 259.5,
+    },
+  ],
+  saturn: [
+    {
+      name: "Titan",
+      semiMajorKm: 1221900,
+      periodDays: 15.945448,
+      eccentricity: 0.029,
+      inclinationDeg: 0.3,
+      nodeDeg: 78.6,
+      periapsisDeg: 78.3,
+      phaseDeg: 11.7,
+    },
+    {
+      name: "Enceladus",
+      semiMajorKm: 238400,
+      periodDays: 1.370218,
+      eccentricity: 0.005,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 119.5,
+      phaseDeg: 57,
+    },
+    {
+      name: "Rhea",
+      semiMajorKm: 527200,
+      periodDays: 4.517503,
+      eccentricity: 0.001,
+      inclinationDeg: 0.3,
+      nodeDeg: 133.7,
+      periapsisDeg: 44.3,
+      phaseDeg: 31.5,
+    },
+    {
+      name: "Iapetus",
+      semiMajorKm: 3561700,
+      periodDays: 79.331002,
+      eccentricity: 0.028,
+      inclinationDeg: 7.6,
+      nodeDeg: 86.5,
+      periapsisDeg: 254.5,
+      phaseDeg: 74.8,
+    },
+    {
+      name: "Pan",
+      semiMajorKm: 133600,
+      periodDays: 0.575051,
+      eccentricity: 0,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 0,
+      phaseDeg: 146.6,
+    },
+    {
+      name: "Daphnis",
+      semiMajorKm: 136500,
+      periodDays: 0.59408,
+      eccentricity: 0,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 0,
+      phaseDeg: 153.6,
+    },
+    {
+      name: "Atlas",
+      semiMajorKm: 137700,
+      periodDays: 0.604602,
+      eccentricity: 0.001,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 82.3,
+      phaseDeg: 289.1,
+    },
+    {
+      name: "Prometheus",
+      semiMajorKm: 139400,
+      periodDays: 0.615878,
+      eccentricity: 0.002,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 341.9,
+      phaseDeg: 135.4,
+    },
+    {
+      name: "Pandora",
+      semiMajorKm: 141700,
+      periodDays: 0.631369,
+      eccentricity: 0.004,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 217.9,
+      phaseDeg: 123.9,
+    },
+    {
+      name: "Janus",
+      semiMajorKm: 151500,
+      periodDays: 0.697353,
+      eccentricity: 0.007,
+      inclinationDeg: 0.2,
+      nodeDeg: 159.9,
+      periapsisDeg: 11.1,
+      phaseDeg: 111.7,
+    },
+    {
+      name: "Epimetheus",
+      semiMajorKm: 151400,
+      periodDays: 0.697012,
+      eccentricity: 0.02,
+      inclinationDeg: 0.3,
+      nodeDeg: 189.8,
+      periapsisDeg: 96.3,
+      phaseDeg: 197.2,
+    },
+    {
+      name: "Mimas",
+      semiMajorKm: 186000,
+      periodDays: 0.942422,
+      eccentricity: 0.02,
+      inclinationDeg: 1.6,
+      nodeDeg: 66.2,
+      periapsisDeg: 160.4,
+      phaseDeg: 275.3,
+    },
+    {
+      name: "Tethys",
+      semiMajorKm: 295000,
+      periodDays: 1.887802,
+      eccentricity: 0.001,
+      inclinationDeg: 1.1,
+      nodeDeg: 273,
+      periapsisDeg: 335.3,
+      phaseDeg: 0,
+    },
+    {
+      name: "Dione",
+      semiMajorKm: 377700,
+      periodDays: 2.736916,
+      eccentricity: 0.002,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 116,
+      phaseDeg: 212,
+    },
+    {
+      name: "Hyperion",
+      semiMajorKm: 1481500,
+      periodDays: 21.276658,
+      eccentricity: 0.105,
+      inclinationDeg: 0.6,
+      nodeDeg: 87.1,
+      periapsisDeg: 214,
+      phaseDeg: 122.9,
+    },
+    {
+      name: "Phoebe",
+      semiMajorKm: 12929400,
+      periodDays: 550.30391,
+      eccentricity: 0.164,
+      inclinationDeg: 175.2,
+      nodeDeg: 192.7,
+      periapsisDeg: 240.3,
+      phaseDeg: 308,
+    },
+  ],
+  uranus: [
+    {
+      name: "Miranda",
+      semiMajorKm: 129846,
+      periodDays: 1.413479,
+      eccentricity: 0.001,
+      inclinationDeg: 4.4,
+      nodeDeg: 100.9,
+      periapsisDeg: 154.8,
+      phaseDeg: 73,
+    },
+    {
+      name: "Ariel",
+      semiMajorKm: 190929,
+      periodDays: 2.520379,
+      eccentricity: 0.001,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 9.6,
+      phaseDeg: 193.5,
+    },
+    {
+      name: "Umbriel",
+      semiMajorKm: 265986,
+      periodDays: 4.144177,
+      eccentricity: 0.004,
+      inclinationDeg: 0.1,
+      nodeDeg: 174.8,
+      periapsisDeg: 183.4,
+      phaseDeg: 253,
+    },
+    {
+      name: "Titania",
+      semiMajorKm: 436298,
+      periodDays: 8.705869,
+      eccentricity: 0.002,
+      inclinationDeg: 0.1,
+      nodeDeg: 29.5,
+      periapsisDeg: 184,
+      phaseDeg: 68.1,
+    },
+    {
+      name: "Oberon",
+      semiMajorKm: 583511,
+      periodDays: 13.463237,
+      eccentricity: 0.002,
+      inclinationDeg: 0.1,
+      nodeDeg: 76.8,
+      periapsisDeg: 132.2,
+      phaseDeg: 143.6,
+    },
+    {
+      name: "Cordelia",
+      semiMajorKm: 49755,
+      periodDays: 0.3347,
+      eccentricity: 0,
+      inclinationDeg: 0.2,
+      nodeDeg: 1.1,
+      periapsisDeg: 0,
+      phaseDeg: 287.4,
+    },
+    {
+      name: "Ophelia",
+      semiMajorKm: 53765,
+      periodDays: 0.3764,
+      eccentricity: 0.011,
+      inclinationDeg: 0.2,
+      nodeDeg: 151.6,
+      periapsisDeg: 19.3,
+      phaseDeg: 213.4,
+    },
+    {
+      name: "Bianca",
+      semiMajorKm: 59170,
+      periodDays: 0.4347,
+      eccentricity: 0.006,
+      inclinationDeg: 2.3,
+      nodeDeg: 272.5,
+      periapsisDeg: 328,
+      phaseDeg: 109.1,
+    },
+    {
+      name: "Cressida",
+      semiMajorKm: 61770,
+      periodDays: 0.4639,
+      eccentricity: 0.004,
+      inclinationDeg: 1.8,
+      nodeDeg: 308.2,
+      periapsisDeg: 87.9,
+      phaseDeg: 0.5,
+    },
+    {
+      name: "Desdemona",
+      semiMajorKm: 62663,
+      periodDays: 0.4736,
+      eccentricity: 0.007,
+      inclinationDeg: 3.1,
+      nodeDeg: 283.9,
+      periapsisDeg: 137,
+      phaseDeg: 230,
+    },
+    {
+      name: "Juliet",
+      semiMajorKm: 64362,
+      periodDays: 0.4931,
+      eccentricity: 0.006,
+      inclinationDeg: 3,
+      nodeDeg: 141,
+      periapsisDeg: 274.9,
+      phaseDeg: 319.8,
+    },
+    {
+      name: "Portia",
+      semiMajorKm: 66101,
+      periodDays: 0.5132,
+      eccentricity: 0.004,
+      inclinationDeg: 2.7,
+      nodeDeg: 146.7,
+      periapsisDeg: 31.6,
+      phaseDeg: 310.1,
+    },
+    {
+      name: "Rosalind",
+      semiMajorKm: 69930,
+      periodDays: 0.5583,
+      eccentricity: 0.003,
+      inclinationDeg: 1.7,
+      nodeDeg: 330,
+      periapsisDeg: 231.8,
+      phaseDeg: 287.7,
+    },
+    {
+      name: "Belinda",
+      semiMajorKm: 75258,
+      periodDays: 0.6236,
+      eccentricity: 0.002,
+      inclinationDeg: 1.4,
+      nodeDeg: 96.2,
+      periapsisDeg: 58.6,
+      phaseDeg: 226.4,
+    },
+    {
+      name: "Puck",
+      semiMajorKm: 86007,
+      periodDays: 0.7618,
+      eccentricity: 0.009,
+      inclinationDeg: 1.1,
+      nodeDeg: 111.2,
+      periapsisDeg: 337,
+      phaseDeg: 264.1,
+    },
+  ],
+  neptune: [
+    {
+      name: "Triton",
+      semiMajorKm: 354800,
+      periodDays: 5.876994,
+      eccentricity: 0,
+      inclinationDeg: 157.3,
+      nodeDeg: 178.1,
+      periapsisDeg: 0,
+      phaseDeg: 63,
+    },
+    {
+      name: "Nereid",
+      semiMajorKm: 5513900,
+      periodDays: 360.133039,
+      eccentricity: 0.751,
+      inclinationDeg: 5.1,
+      nodeDeg: 319.5,
+      periapsisDeg: 296.8,
+      phaseDeg: 318.5,
+    },
+    {
+      name: "Proteus",
+      semiMajorKm: 117600,
+      periodDays: 1.122315,
+      eccentricity: 0,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 0,
+      phaseDeg: 276.8,
+    },
+    {
+      name: "Naiad",
+      semiMajorKm: 48200,
+      periodDays: 0.29398,
+      eccentricity: 0,
+      inclinationDeg: 4.7,
+      nodeDeg: 41.4,
+      periapsisDeg: 0,
+      phaseDeg: 89.7,
+    },
+    {
+      name: "Thalassa",
+      semiMajorKm: 50100,
+      periodDays: 0.311078,
+      eccentricity: 0,
+      inclinationDeg: 0.2,
+      nodeDeg: 130.6,
+      periapsisDeg: 0,
+      phaseDeg: 165.7,
+    },
+    {
+      name: "Despina",
+      semiMajorKm: 52500,
+      periodDays: 0.334656,
+      eccentricity: 0,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 0,
+      phaseDeg: 125.1,
+    },
+    {
+      name: "Galatea",
+      semiMajorKm: 62000,
+      periodDays: 0.428744,
+      eccentricity: 0,
+      inclinationDeg: 0,
+      nodeDeg: 0,
+      periapsisDeg: 0,
+      phaseDeg: 86.7,
+    },
+    {
+      name: "Larissa",
+      semiMajorKm: 73500,
+      periodDays: 0.554989,
+      eccentricity: 0.001,
+      inclinationDeg: 0.2,
+      nodeDeg: 312,
+      periapsisDeg: 247.3,
+      phaseDeg: 165.5,
+    },
+    {
+      name: "Hippocamp",
+      semiMajorKm: 105300,
+      periodDays: 0.95039,
+      eccentricity: 0.001,
+      inclinationDeg: 0.3,
+      nodeDeg: 0.5,
+      periapsisDeg: 346.4,
+      phaseDeg: 286.5,
+    },
+  ],
+};
+
+function solveEccentricAnomaly(meanAnomaly: number, eccentricity: number) {
+  let eccentricAnomaly = meanAnomaly;
+  for (let iteration = 0; iteration < 5; iteration += 1) {
+    eccentricAnomaly -=
+      (eccentricAnomaly -
+        eccentricity * Math.sin(eccentricAnomaly) -
+        meanAnomaly) /
+      (1 - eccentricity * Math.cos(eccentricAnomaly));
+  }
+  return eccentricAnomaly;
+}
+
+function setMoonOrbitPosition(
+  target: THREE.Vector3,
+  semiMajor: number,
+  eccentricity: number,
+  inclination: number,
+  node: number,
+  periapsis: number,
+  meanAnomaly: number,
+) {
+  const eccentricAnomaly = solveEccentricAnomaly(
+    meanAnomaly,
+    eccentricity,
+  );
+  const orbitalX =
+    semiMajor * (Math.cos(eccentricAnomaly) - eccentricity);
+  const orbitalZ =
+    semiMajor *
+    Math.sqrt(1 - eccentricity * eccentricity) *
+    Math.sin(eccentricAnomaly);
+  const periapsisCos = Math.cos(periapsis);
+  const periapsisSin = Math.sin(periapsis);
+  const planeX = orbitalX * periapsisCos - orbitalZ * periapsisSin;
+  const planeZ = orbitalX * periapsisSin + orbitalZ * periapsisCos;
+  const nodeCos = Math.cos(node);
+  const nodeSin = Math.sin(node);
+  const inclinationCos = Math.cos(inclination);
+  const inclinationSin = Math.sin(inclination);
+  const tiltedZ = planeZ * inclinationCos;
+  target.set(
+    planeX * nodeCos + tiltedZ * nodeSin,
+    planeZ * inclinationSin,
+    -planeX * nodeSin + tiltedZ * nodeCos,
+  );
+}
+
 function formatPeriod(days: number) {
   if (days < 1000) return `${days.toLocaleString("th-TH")} วัน`;
   return `${(days / 365.25).toFixed(1)} ปี`;
@@ -397,6 +1022,7 @@ export default function SolarSystem() {
     [selected],
   );
   const activeMoonFacts = FEATURED_MOONS[selected] ?? [];
+  const activeRealMoonCount = REAL_MOON_ORBITS[selected]?.length ?? 0;
   const activeMoonFact =
     activeMoonFacts[Math.min(moonFactIndex, activeMoonFacts.length - 1)];
 
@@ -602,9 +1228,14 @@ export default function SolarSystem() {
         mesh: THREE.InstancedMesh;
         phases: Float32Array;
         radii: Float32Array;
-        speeds: Float32Array;
-        tilts: Float32Array;
+        periods: Float32Array;
+        eccentricities: Float32Array;
+        inclinations: Float32Array;
+        nodes: Float32Array;
+        periapses: Float32Array;
         sizes: Float32Array;
+        guideGroup: THREE.Group;
+        guideMaterial: THREE.LineBasicMaterial;
       }
     >();
     const selectable: THREE.Object3D[] = [sun];
@@ -674,6 +1305,7 @@ export default function SolarSystem() {
       }
 
       if (planet.moons > 0) {
+        const realOrbits = REAL_MOON_ORBITS[planet.key] ?? [];
         const moonGeometry = new THREE.SphereGeometry(0.075, 7, 5);
         const moonMaterial = new THREE.MeshStandardMaterial({
           color: 0xb8c5cf,
@@ -687,23 +1319,102 @@ export default function SolarSystem() {
         );
         const phases = new Float32Array(planet.moons);
         const radii = new Float32Array(planet.moons);
-        const speeds = new Float32Array(planet.moons);
-        const tilts = new Float32Array(planet.moons);
+        const periods = new Float32Array(planet.moons);
+        const eccentricities = new Float32Array(planet.moons);
+        const inclinations = new Float32Array(planet.moons);
+        const nodes = new Float32Array(planet.moons);
+        const periapses = new Float32Array(planet.moons);
         const sizes = new Float32Array(planet.moons);
         const color = new THREE.Color();
+        const visualInner = planet.radius * 1.65 + 0.62;
+        const visualSpan =
+          planet.key === "saturn"
+            ? 6.4
+            : planet.moons <= 2
+              ? 2.5
+              : 5.2;
+        const realDistances = realOrbits.map((moon) => moon.semiMajorKm);
+        const minRealDistance = Math.min(...realDistances);
+        const maxRealDistance = Math.max(...realDistances);
+        const logRealRange =
+          Math.log(maxRealDistance) - Math.log(minRealDistance);
+        const maxProceduralPeriod =
+          planet.key === "jupiter"
+            ? 900
+            : planet.key === "saturn"
+              ? 1450
+              : planet.key === "uranus"
+                ? 3000
+                : planet.key === "neptune"
+                  ? 9500
+                  : 120;
 
         for (let moonIndex = 0; moonIndex < planet.moons; moonIndex += 1) {
-          const lane = moonIndex % 11;
-          const family = Math.floor(moonIndex / 11);
-          phases[moonIndex] =
-            (moonIndex / Math.max(planet.moons, 1)) * Math.PI * 2 +
-            lane * 0.31;
-          radii[moonIndex] =
-            planet.radius * 1.55 + 0.72 + lane * 0.2 + family * 0.026;
-          speeds[moonIndex] = 0.006 + (moonIndex % 13) * 0.00075;
-          tilts[moonIndex] =
-            ((moonIndex % 7) - 3) * 0.055 +
-            (family % 2 === 0 ? 0.035 : -0.035);
+          const realOrbit = realOrbits[moonIndex];
+          if (realOrbit) {
+            const distanceMix =
+              logRealRange > 0
+                ? (Math.log(realOrbit.semiMajorKm) -
+                    Math.log(minRealDistance)) /
+                  logRealRange
+                : 0.5;
+            radii[moonIndex] =
+              visualInner + 0.25 + distanceMix * visualSpan;
+            periods[moonIndex] = realOrbit.periodDays;
+            eccentricities[moonIndex] = realOrbit.eccentricity;
+            inclinations[moonIndex] = THREE.MathUtils.degToRad(
+              realOrbit.inclinationDeg,
+            );
+            nodes[moonIndex] = THREE.MathUtils.degToRad(realOrbit.nodeDeg);
+            periapses[moonIndex] = THREE.MathUtils.degToRad(
+              realOrbit.periapsisDeg,
+            );
+            phases[moonIndex] = THREE.MathUtils.degToRad(
+              realOrbit.phaseDeg,
+            );
+          } else {
+            const generatedIndex = moonIndex - realOrbits.length;
+            const generatedCount = Math.max(
+              1,
+              planet.moons - realOrbits.length,
+            );
+            const familyMix =
+              (generatedIndex + 0.5) / Math.max(generatedCount, 1);
+            const laneOffset = (generatedIndex % 9) * 0.035;
+            phases[moonIndex] =
+              (generatedIndex * 2.399963) % (Math.PI * 2);
+            radii[moonIndex] =
+              visualInner +
+              0.42 +
+              Math.pow(familyMix, 0.72) * (visualSpan + 1.55) +
+              laneOffset;
+            periods[moonIndex] =
+              0.34 +
+              Math.pow(familyMix, 1.65) * maxProceduralPeriod;
+            if (familyMix < 0.42) {
+              eccentricities[moonIndex] =
+                0.004 + (generatedIndex % 5) * 0.005;
+              inclinations[moonIndex] = THREE.MathUtils.degToRad(
+                0.4 + (generatedIndex % 8) * 0.7,
+              );
+            } else if (familyMix < 0.7) {
+              eccentricities[moonIndex] =
+                0.05 + (generatedIndex % 9) * 0.022;
+              inclinations[moonIndex] = THREE.MathUtils.degToRad(
+                18 + (generatedIndex % 11) * 3.1,
+              );
+            } else {
+              eccentricities[moonIndex] =
+                0.14 + (generatedIndex % 10) * 0.036;
+              inclinations[moonIndex] = THREE.MathUtils.degToRad(
+                142 + (generatedIndex % 12) * 2.7,
+              );
+            }
+            nodes[moonIndex] =
+              (generatedIndex * 1.618034) % (Math.PI * 2);
+            periapses[moonIndex] =
+              (generatedIndex * 0.9137) % (Math.PI * 2);
+          }
           sizes[moonIndex] =
             moonIndex < planet.majorMoons.length
               ? planet.key === "earth"
@@ -717,6 +1428,36 @@ export default function SolarSystem() {
             ),
           );
         }
+
+        const guideGroup = new THREE.Group();
+        const guideMaterial = new THREE.LineBasicMaterial({
+          color: planet.accent,
+          transparent: true,
+          opacity: 0.1,
+          depthWrite: false,
+        });
+        realOrbits.forEach((realOrbit, moonIndex) => {
+          const guidePoints: THREE.Vector3[] = [];
+          for (let pointIndex = 0; pointIndex < 96; pointIndex += 1) {
+            const point = new THREE.Vector3();
+            setMoonOrbitPosition(
+              point,
+              radii[moonIndex],
+              eccentricities[moonIndex],
+              inclinations[moonIndex],
+              nodes[moonIndex],
+              periapses[moonIndex],
+              (pointIndex / 96) * Math.PI * 2,
+            );
+            guidePoints.push(point);
+          }
+          const guide = new THREE.LineLoop(
+            new THREE.BufferGeometry().setFromPoints(guidePoints),
+            guideMaterial,
+          );
+          guide.renderOrder = 3;
+          guideGroup.add(guide);
+        });
         moonMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
         if (moonMesh.instanceColor) moonMesh.instanceColor.needsUpdate = true;
         moonMesh.frustumCulled = false;
@@ -725,11 +1466,16 @@ export default function SolarSystem() {
           mesh: moonMesh,
           phases,
           radii,
-          speeds,
-          tilts,
+          periods,
+          eccentricities,
+          inclinations,
+          nodes,
+          periapses,
           sizes,
+          guideGroup,
+          guideMaterial,
         });
-        group.add(moonMesh);
+        group.add(guideGroup, moonMesh);
       }
 
       const selectionRing = new THREE.Mesh(
@@ -960,24 +1706,33 @@ export default function SolarSystem() {
         const moonSystem = moonSystems.get(planet.key);
         if (moonSystem) {
           moonSystem.mesh.visible = moonsRef.current;
+          moonSystem.guideGroup.visible = moonsRef.current;
+          moonSystem.guideMaterial.opacity = moonsRef.current
+            ? selectedRef.current === planet.key
+              ? 0.42
+              : 0.075
+            : 0;
           if (moonsRef.current) {
             for (
               let moonIndex = 0;
               moonIndex < moonSystem.phases.length;
               moonIndex += 1
             ) {
-              const moonAngle =
+              const meanAnomaly =
                 moonSystem.phases[moonIndex] +
-                elapsedDays * moonSystem.speeds[moonIndex];
-              const moonRadius = moonSystem.radii[moonIndex];
-              moonTransform.position.set(
-                Math.cos(moonAngle) * moonRadius,
-                Math.sin(moonAngle * 0.73) *
-                  moonRadius *
-                  moonSystem.tilts[moonIndex],
-                Math.sin(moonAngle) * moonRadius,
+                (elapsedDays / moonSystem.periods[moonIndex]) *
+                  Math.PI *
+                  2;
+              setMoonOrbitPosition(
+                moonTransform.position,
+                moonSystem.radii[moonIndex],
+                moonSystem.eccentricities[moonIndex],
+                moonSystem.inclinations[moonIndex],
+                moonSystem.nodes[moonIndex],
+                moonSystem.periapses[moonIndex],
+                meanAnomaly,
               );
-              moonTransform.rotation.set(0, moonAngle, 0);
+              moonTransform.rotation.set(0, meanAnomaly, 0);
               moonTransform.scale.setScalar(moonSystem.sizes[moonIndex]);
               moonTransform.updateMatrix();
               moonSystem.mesh.setMatrixAt(moonIndex, moonTransform.matrix);
@@ -1348,6 +2103,13 @@ export default function SolarSystem() {
                 ? "ดาวดวงนี้ไม่มีดวงจันทร์บริวาร"
                 : `ดวงเด่น: ${activePlanet.majorMoons.join(" • ")}`}
             </p>
+            {activePlanet.moons > 0 && (
+              <p className="moon-orbit-note">
+                <span aria-hidden="true" />
+                เส้นวงโคจรจริง {activeRealMoonCount} ดวง • ดวงที่เหลือจำลองเป็น
+                กลุ่มวงโคจร
+              </p>
+            )}
             {activeMoonFacts.length > 0 && activeMoonFact && (
               <section
                 className={`moon-explorer ${

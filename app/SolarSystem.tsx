@@ -46,9 +46,32 @@ type Planet = {
   tilt: number;
   realAu: number;
   majorMoons: string[];
+  isSun?: boolean;
   isDwarf?: boolean;
   eccentricity?: number;
   orbitInclination?: number;
+};
+
+const SUN: Planet = {
+  key: "sun",
+  name: "ดวงอาทิตย์",
+  english: "SUN",
+  color: "#f47b18",
+  accent: "#ffd36a",
+  distance: 0,
+  radius: 3.25,
+  period: 0,
+  day: "ประมาณ 25–35 วัน",
+  temp: "ประมาณ 5,500°C",
+  moons: 0,
+  fact: "ดาวฤกษ์ที่ให้แสงและความร้อน และมีแรงโน้มถ่วงยึดทุกวัตถุในระบบสุริยะไว้ด้วยกัน",
+  kind: "ดาวฤกษ์ • ชนิด G",
+  realDistance: "ศูนย์กลางระบบสุริยะ",
+  gravity: "≈28 เท่าของโลก",
+  tilt: 7.25,
+  realAu: 0,
+  majorMoons: [],
+  isSun: true,
 };
 
 const PLANETS: Planet[] = [
@@ -333,6 +356,7 @@ const DWARF_PLANETS: Planet[] = [
 ];
 
 const ALL_WORLDS = [...PLANETS, ...DWARF_PLANETS];
+const INFO_BODIES = [SUN, ...ALL_WORLDS];
 
 const STAR_NAMES = ["ORION", "SIRIUS", "POLARIS", "BETELGEUSE"];
 
@@ -1266,7 +1290,7 @@ export default function SolarSystem() {
   const [simDays, setSimDays] = useState(0);
 
   const activePlanet = useMemo(
-    () => ALL_WORLDS.find((p) => p.key === selected) ?? PLANETS[2],
+    () => INFO_BODIES.find((p) => p.key === selected) ?? PLANETS[2],
     [selected],
   );
   const activeMoonFacts = FEATURED_MOONS[selected] ?? [];
@@ -1923,7 +1947,7 @@ export default function SolarSystem() {
         raycaster.setFromCamera(pointer, camera);
         const hit = raycaster.intersectObjects(selectable, false)[0];
         const key = hit?.object.userData.key as string | undefined;
-        if (key && key !== "sun") {
+        if (key) {
           setSelected(key);
           setPanelOpen(true);
         }
@@ -1962,6 +1986,12 @@ export default function SolarSystem() {
         );
       },
       focus: (key: string) => {
+        if (key === "sun") {
+          focusPlanet = false;
+          targetLook.set(0, 0, 0);
+          targetDistance = distanceModeRef.current === "real" ? 30 : 27;
+          return;
+        }
         const planet = ALL_WORLDS.find((item) => item.key === key);
         if (!planet) return;
         if (distanceModeRef.current === "real") {
@@ -2370,14 +2400,19 @@ export default function SolarSystem() {
             </span>
           </div>
 
-          <div className="sun-note">
+          <button
+            type="button"
+            className={`sun-note ${selected === SUN.key ? "active" : ""}`}
+            onClick={() => setSelected(SUN.key)}
+            aria-label="ดูข้อมูลดวงอาทิตย์"
+          >
             <span className="sun-dot" />
             <span>
               <strong>ดวงอาทิตย์</strong>
               <small>หัวใจของระบบสุริยะ</small>
             </span>
             <span className="sun-stat">99.8%</span>
-          </div>
+          </button>
           <p className="sun-caption">
             มวลเกือบทั้งหมดในระบบสุริยะอยู่ที่ดวงอาทิตย์
           </p>
@@ -2593,44 +2628,82 @@ export default function SolarSystem() {
             {infoCardOpen && (
               <div className="info-card-details">
                 <p className="planet-fact">“{activePlanet.fact}”</p>
-                <div className="stat-grid">
-                  <div>
-                    <span>ระยะจากดวงอาทิตย์</span>
-                    <strong>{activePlanet.realDistance}</strong>
-                  </div>
-                  <div>
-                    <span>เวลาโคจรรอบดวงอาทิตย์</span>
-                    <strong>{formatPeriod(activePlanet.period)}</strong>
-                  </div>
-                  <div>
-                    <span>หนึ่งวันยาวนาน</span>
-                    <strong>{activePlanet.day}</strong>
-                  </div>
-                  <div>
-                    <span>อุณหภูมิเฉลี่ย</span>
-                    <strong>{activePlanet.temp}</strong>
-                  </div>
-                </div>
-                <div className="card-footer">
-                  <span>ดวงจันทร์บริวาร</span>
-                  <strong>{activePlanet.moons} ดวง</strong>
-                  <span className="gravity-copy">
-                    แรงโน้มถ่วง {activePlanet.gravity}
-                  </span>
-                </div>
-                <p className="moon-summary">
-                  {activePlanet.moons === 0
-                    ? "ดาวดวงนี้ไม่มีดวงจันทร์บริวาร"
-                    : `ดวงเด่น: ${activePlanet.majorMoons.join(" • ")}`}
-                </p>
-                {activePlanet.moons > 0 && (
+                {activePlanet.isSun ? (
+                  <>
+                    <div className="stat-grid">
+                      <div>
+                        <span>เส้นผ่านศูนย์กลาง</span>
+                        <strong>1.39 ล้าน กม.</strong>
+                      </div>
+                      <div>
+                        <span>อายุโดยประมาณ</span>
+                        <strong>4.6 พันล้านปี</strong>
+                      </div>
+                      <div>
+                        <span>เวลาหมุนรอบตัวเอง</span>
+                        <strong>{activePlanet.day}</strong>
+                      </div>
+                      <div>
+                        <span>อุณหภูมิพื้นผิว</span>
+                        <strong>{activePlanet.temp}</strong>
+                      </div>
+                    </div>
+                    <div className="card-footer sun-card-footer">
+                      <span>ดาวเคราะห์บริวาร</span>
+                      <strong>8 ดวง</strong>
+                      <span className="gravity-copy">
+                        แรงโน้มถ่วง {activePlanet.gravity}
+                      </span>
+                    </div>
+                    <p className="moon-summary">
+                      มีมวลประมาณ 99.8% ของมวลทั้งระบบสุริยะ
+                      พลังงานเกิดจากนิวเคลียร์ฟิวชันที่แก่นกลาง
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className="stat-grid">
+                      <div>
+                        <span>ระยะจากดวงอาทิตย์</span>
+                        <strong>{activePlanet.realDistance}</strong>
+                      </div>
+                      <div>
+                        <span>เวลาโคจรรอบดวงอาทิตย์</span>
+                        <strong>{formatPeriod(activePlanet.period)}</strong>
+                      </div>
+                      <div>
+                        <span>หนึ่งวันยาวนาน</span>
+                        <strong>{activePlanet.day}</strong>
+                      </div>
+                      <div>
+                        <span>อุณหภูมิเฉลี่ย</span>
+                        <strong>{activePlanet.temp}</strong>
+                      </div>
+                    </div>
+                    <div className="card-footer">
+                      <span>ดวงจันทร์บริวาร</span>
+                      <strong>{activePlanet.moons} ดวง</strong>
+                      <span className="gravity-copy">
+                        แรงโน้มถ่วง {activePlanet.gravity}
+                      </span>
+                    </div>
+                    <p className="moon-summary">
+                      {activePlanet.moons === 0
+                        ? "ดาวดวงนี้ไม่มีดวงจันทร์บริวาร"
+                        : `ดวงเด่น: ${activePlanet.majorMoons.join(" • ")}`}
+                    </p>
+                  </>
+                )}
+                {!activePlanet.isSun && activePlanet.moons > 0 && (
                   <p className="moon-orbit-note">
                     <span aria-hidden="true" />
                     เส้นวงโคจรจริง {activeRealMoonCount} ดวง •
                     ดวงที่เหลือจำลองเป็นกลุ่มวงโคจร
                   </p>
                 )}
-                {activeMoonFacts.length > 0 && activeMoonFact && (
+                {!activePlanet.isSun &&
+                  activeMoonFacts.length > 0 &&
+                  activeMoonFact && (
                   <section
                     className={`moon-explorer ${
                       moonDetailsOpen ? "open" : ""
@@ -2698,7 +2771,7 @@ export default function SolarSystem() {
                       </div>
                     )}
                   </section>
-                )}
+                  )}
               </div>
             )}
           </article>

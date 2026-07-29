@@ -1260,6 +1260,7 @@ export default function SolarSystem() {
   const [showOort, setShowOort] = useState(true);
   const [moonFactIndex, setMoonFactIndex] = useState(0);
   const [moonDetailsOpen, setMoonDetailsOpen] = useState(true);
+  const [infoCardOpen, setInfoCardOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
   const [tipOpen, setTipOpen] = useState(true);
   const [simDays, setSimDays] = useState(0);
@@ -2565,121 +2566,140 @@ export default function SolarSystem() {
             </button>
           </div>
 
-          <article className="info-card" style={{ "--accent": activePlanet.accent } as React.CSSProperties}>
-            <div className="card-topline">
-              <div>
-                <span className="planet-type">{activePlanet.kind}</span>
-                <h3>{activePlanet.name}</h3>
-                <p>{activePlanet.english}</p>
-              </div>
+          <article
+            className={`info-card ${infoCardOpen ? "expanded" : "collapsed"}`}
+            style={{ "--accent": activePlanet.accent } as React.CSSProperties}
+          >
+            <button
+              type="button"
+              className="info-card-toggle"
+              onClick={() => setInfoCardOpen((value) => !value)}
+              aria-expanded={infoCardOpen}
+              aria-label={`${infoCardOpen ? "ย่อ" : "ขยาย"}ข้อมูล${activePlanet.name}`}
+            >
               <span className="selected-planet-visual">
                 <MiniPlanet planet={activePlanet} active />
               </span>
-            </div>
-            <p className="planet-fact">“{activePlanet.fact}”</p>
-            <div className="stat-grid">
-              <div>
-                <span>ระยะจากดวงอาทิตย์</span>
-                <strong>{activePlanet.realDistance}</strong>
-              </div>
-              <div>
-                <span>เวลาโคจรรอบดวงอาทิตย์</span>
-                <strong>{formatPeriod(activePlanet.period)}</strong>
-              </div>
-              <div>
-                <span>หนึ่งวันยาวนาน</span>
-                <strong>{activePlanet.day}</strong>
-              </div>
-              <div>
-                <span>อุณหภูมิเฉลี่ย</span>
-                <strong>{activePlanet.temp}</strong>
-              </div>
-            </div>
-            <div className="card-footer">
-              <span>ดวงจันทร์บริวาร</span>
-              <strong>{activePlanet.moons} ดวง</strong>
-              <span className="gravity-copy">
-                แรงโน้มถ่วง {activePlanet.gravity}
+              <span className="info-card-heading">
+                <span className="planet-type">{activePlanet.kind}</span>
+                <strong>{activePlanet.name}</strong>
+                <span className="card-english">{activePlanet.english}</span>
               </span>
-            </div>
-            <p className="moon-summary">
-              {activePlanet.moons === 0
-                ? "ดาวดวงนี้ไม่มีดวงจันทร์บริวาร"
-                : `ดวงเด่น: ${activePlanet.majorMoons.join(" • ")}`}
-            </p>
-            {activePlanet.moons > 0 && (
-              <p className="moon-orbit-note">
-                <span aria-hidden="true" />
-                เส้นวงโคจรจริง {activeRealMoonCount} ดวง • ดวงที่เหลือจำลองเป็น
-                กลุ่มวงโคจร
-              </p>
-            )}
-            {activeMoonFacts.length > 0 && activeMoonFact && (
-              <section
-                className={`moon-explorer ${
-                  moonDetailsOpen ? "open" : ""
-                }`}
-                aria-label={`ข้อมูลดวงจันทร์ของ${activePlanet.name}`}
-              >
-                <button
-                  type="button"
-                  className="moon-explorer-toggle"
-                  onClick={() => setMoonDetailsOpen((value) => !value)}
-                  aria-expanded={moonDetailsOpen}
-                >
-                  <span>ดวงจันทร์น่าสนใจ</span>
-                  <strong>
-                    {activeMoonFacts.length} ดวง{" "}
-                    {moonDetailsOpen ? "⌃" : "⌄"}
-                  </strong>
-                </button>
-                {moonDetailsOpen && (
-                  <div className="moon-explorer-body">
-                    <div className="moon-tabs" role="tablist">
-                      {activeMoonFacts.map((moon, index) => (
-                        <button
-                          key={moon.english}
-                          type="button"
-                          role="tab"
-                          aria-selected={moonFactIndex === index}
-                          className={moonFactIndex === index ? "active" : ""}
-                          onClick={() => setMoonFactIndex(index)}
-                        >
-                          <span
-                            className="moon-tab-dot"
-                            style={{ background: moon.color }}
-                          />
-                          {moon.name}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="moon-fact-card" role="tabpanel">
-                      <div
-                        className="moon-fact-orb"
-                        style={{
-                          background: `radial-gradient(circle at 34% 28%, #f4f8fa, ${activeMoonFact.color} 48%, #35404b 120%)`,
-                        }}
-                      />
-                      <div className="moon-fact-main">
-                        <span>{activeMoonFact.english}</span>
-                        <strong>{activeMoonFact.name}</strong>
-                        <small>{activeMoonFact.tag}</small>
-                      </div>
-                      <div className="moon-fact-stats">
-                        <span>
-                          เส้นผ่านศูนย์กลาง
-                          <strong>{activeMoonFact.diameter}</strong>
-                        </span>
-                        <span>
-                          เวลาโคจร
-                          <strong>{activeMoonFact.orbit}</strong>
-                        </span>
-                      </div>
-                      <p>{activeMoonFact.fact}</p>
-                    </div>
+              <span className="info-card-toggle-icon" aria-hidden="true">
+                {infoCardOpen ? "−" : "+"}
+              </span>
+            </button>
+
+            {infoCardOpen && (
+              <div className="info-card-details">
+                <p className="planet-fact">“{activePlanet.fact}”</p>
+                <div className="stat-grid">
+                  <div>
+                    <span>ระยะจากดวงอาทิตย์</span>
+                    <strong>{activePlanet.realDistance}</strong>
                   </div>
+                  <div>
+                    <span>เวลาโคจรรอบดวงอาทิตย์</span>
+                    <strong>{formatPeriod(activePlanet.period)}</strong>
+                  </div>
+                  <div>
+                    <span>หนึ่งวันยาวนาน</span>
+                    <strong>{activePlanet.day}</strong>
+                  </div>
+                  <div>
+                    <span>อุณหภูมิเฉลี่ย</span>
+                    <strong>{activePlanet.temp}</strong>
+                  </div>
+                </div>
+                <div className="card-footer">
+                  <span>ดวงจันทร์บริวาร</span>
+                  <strong>{activePlanet.moons} ดวง</strong>
+                  <span className="gravity-copy">
+                    แรงโน้มถ่วง {activePlanet.gravity}
+                  </span>
+                </div>
+                <p className="moon-summary">
+                  {activePlanet.moons === 0
+                    ? "ดาวดวงนี้ไม่มีดวงจันทร์บริวาร"
+                    : `ดวงเด่น: ${activePlanet.majorMoons.join(" • ")}`}
+                </p>
+                {activePlanet.moons > 0 && (
+                  <p className="moon-orbit-note">
+                    <span aria-hidden="true" />
+                    เส้นวงโคจรจริง {activeRealMoonCount} ดวง •
+                    ดวงที่เหลือจำลองเป็นกลุ่มวงโคจร
+                  </p>
                 )}
-              </section>
+                {activeMoonFacts.length > 0 && activeMoonFact && (
+                  <section
+                    className={`moon-explorer ${
+                      moonDetailsOpen ? "open" : ""
+                    }`}
+                    aria-label={`ข้อมูลดวงจันทร์ของ${activePlanet.name}`}
+                  >
+                    <button
+                      type="button"
+                      className="moon-explorer-toggle"
+                      onClick={() => setMoonDetailsOpen((value) => !value)}
+                      aria-expanded={moonDetailsOpen}
+                    >
+                      <span>ดวงจันทร์น่าสนใจ</span>
+                      <strong>
+                        {activeMoonFacts.length} ดวง{" "}
+                        {moonDetailsOpen ? "⌃" : "⌄"}
+                      </strong>
+                    </button>
+                    {moonDetailsOpen && (
+                      <div className="moon-explorer-body">
+                        <div className="moon-tabs" role="tablist">
+                          {activeMoonFacts.map((moon, index) => (
+                            <button
+                              key={moon.english}
+                              type="button"
+                              role="tab"
+                              aria-selected={moonFactIndex === index}
+                              className={
+                                moonFactIndex === index ? "active" : ""
+                              }
+                              onClick={() => setMoonFactIndex(index)}
+                            >
+                              <span
+                                className="moon-tab-dot"
+                                style={{ background: moon.color }}
+                              />
+                              {moon.name}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="moon-fact-card" role="tabpanel">
+                          <div
+                            className="moon-fact-orb"
+                            style={{
+                              background: `radial-gradient(circle at 34% 28%, #f4f8fa, ${activeMoonFact.color} 48%, #35404b 120%)`,
+                            }}
+                          />
+                          <div className="moon-fact-main">
+                            <span>{activeMoonFact.english}</span>
+                            <strong>{activeMoonFact.name}</strong>
+                            <small>{activeMoonFact.tag}</small>
+                          </div>
+                          <div className="moon-fact-stats">
+                            <span>
+                              เส้นผ่านศูนย์กลาง
+                              <strong>{activeMoonFact.diameter}</strong>
+                            </span>
+                            <span>
+                              เวลาโคจร
+                              <strong>{activeMoonFact.orbit}</strong>
+                            </span>
+                          </div>
+                          <p>{activeMoonFact.fact}</p>
+                        </div>
+                      </div>
+                    )}
+                  </section>
+                )}
+              </div>
             )}
           </article>
 

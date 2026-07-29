@@ -830,12 +830,39 @@ button:focus-visible {
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(82, 170, 205, 0.35) transparent;
+  transition:
+    width 180ms ease,
+    padding 180ms ease,
+    border-radius 180ms ease;
 }
 
-.card-topline {
+.info-card.collapsed {
+  width: auto;
+  max-height: none;
+  padding: 7px 9px 7px 7px;
+  overflow: hidden;
+  border-radius: 999px;
+}
+
+.info-card-toggle {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 11px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.info-card-heading {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .planet-type {
@@ -846,16 +873,45 @@ button:focus-visible {
   font-weight: 700;
 }
 
-.card-topline h3 {
-  margin: 0;
+.info-card-heading > strong {
   font-size: 23px;
+  line-height: 1.2;
 }
 
-.card-topline p {
+.info-card-heading > .card-english {
   margin: 2px 0 0;
   color: #617991;
   font-size: 8px;
   letter-spacing: 0.18em;
+}
+
+.info-card-toggle-icon {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(114, 185, 220, 0.18);
+  border-radius: 50%;
+  color: #9ddff5;
+  background: rgba(43, 104, 139, 0.18);
+  font-size: 15px;
+}
+
+.info-card.collapsed .planet-type,
+.info-card.collapsed .card-english {
+  display: none;
+}
+
+.info-card.collapsed .info-card-heading > strong {
+  padding-inline: 1px 3px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.info-card.collapsed .selected-planet-visual .mini-planet {
+  width: 34px;
+  height: 34px;
 }
 
 .selected-planet-visual .mini-planet {
@@ -1520,13 +1576,19 @@ button:focus-visible {
 
   .info-card {
     right: 12px;
-    bottom: 65px;
+    bottom: 128px;
     width: min(300px, calc(100% - 24px));
     padding: 13px;
-    max-height: calc(100% - 128px);
+    max-height: calc(100% - 190px);
   }
 
-  .card-topline h3 {
+  .info-card.collapsed {
+    width: auto;
+    max-height: none;
+    padding: 7px 9px 7px 7px;
+  }
+
+  .info-card-heading > strong {
     font-size: 19px;
   }
 
@@ -1628,11 +1690,7 @@ button:focus-visible {
   }
 
   .info-card {
-    bottom: 60px;
-  }
-
-  .info-card .selected-planet-visual {
-    display: none;
+    bottom: 128px;
   }
 
   .mobile-planets {

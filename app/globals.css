@@ -1483,6 +1483,7 @@ button:focus-visible {
     z-index: 45;
     left: 50%;
     bottom: 75px;
+    display: none;
     height: 44px;
     transform: translateX(-50%);
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
@@ -1696,8 +1697,8 @@ button:focus-visible {
   .mobile-planets {
     top: 16px;
     bottom: auto;
-    left: auto;
-    right: 10px;
+    left: 10px;
+    right: auto;
   }
 
   .scene-title {

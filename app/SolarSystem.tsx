@@ -2124,12 +2124,20 @@ export default function SolarSystem() {
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
-    let dragging = false;
-    let pointerMoved = false;
+    const activePointers = new Map<number, { x: number; y: number }>();
+    let gestureMode: "none" | "rotate" | "pinch" = "none";
+    let gestureMoved = false;
+    let tapPointerId: number | null = null;
     let startX = 0;
     let startY = 0;
     let startYaw = 0;
     let startPitch = 0;
+    let pinchStartSpan = 1;
+    let pinchStartDistance = targetDistance;
+    let pinchStartCenterX = 0;
+    let pinchStartCenterY = 0;
+    let pinchStartYaw = yaw;
+    let pinchStartPitch = pitch;
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
@@ -2138,36 +2146,141 @@ export default function SolarSystem() {
       camera.updateProjectionMatrix();
     };
 
-    const onPointerDown = (event: PointerEvent) => {
-      dragging = true;
-      pointerMoved = false;
-      startX = event.clientX;
-      startY = event.clientY;
+    const beginRotate = (pointerId: number) => {
+      const activePointer = activePointers.get(pointerId);
+      if (!activePointer) return;
+      gestureMode = "rotate";
+      startX = activePointer.x;
+      startY = activePointer.y;
       startYaw = yaw;
       startPitch = pitch;
-      canvas.setPointerCapture(event.pointerId);
     };
+
+    const beginPinch = () => {
+      const pair = [...activePointers.values()].slice(0, 2);
+      if (pair.length < 2) return;
+      const [first, second] = pair;
+      gestureMode = "pinch";
+      pinchStartSpan = Math.max(
+        Math.hypot(second.x - first.x, second.y - first.y),
+        1,
+      );
+      pinchStartDistance = targetDistance;
+      pinchStartCenterX = (first.x + second.x) * 0.5;
+      pinchStartCenterY = (first.y + second.y) * 0.5;
+      pinchStartYaw = yaw;
+      pinchStartPitch = pitch;
+    };
+
+    const selectBodyAt = (clientX: number, clientY: number) => {
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hit = raycaster.intersectObjects(selectable, false)[0];
+      const key = hit?.object.userData.key as string | undefined;
+      if (key) {
+        setSelected(key);
+        setPanelOpen(false);
+      }
+    };
+
+    const onPointerDown = (event: PointerEvent) => {
+      event.preventDefault();
+      activePointers.set(event.pointerId, {
+        x: event.clientX,
+        y: event.clientY,
+      });
+      canvas.setPointerCapture(event.pointerId);
+
+      if (activePointers.size === 1) {
+        gestureMoved = false;
+        tapPointerId = event.pointerId;
+        beginRotate(event.pointerId);
+        return;
+      }
+
+      gestureMoved = true;
+      tapPointerId = null;
+      beginPinch();
+    };
+
     const onPointerMove = (event: PointerEvent) => {
-      if (!dragging) return;
+      if (!activePointers.has(event.pointerId)) return;
+      event.preventDefault();
+      activePointers.set(event.pointerId, {
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      if (activePointers.size >= 2) {
+        if (gestureMode !== "pinch") beginPinch();
+        const pair = [...activePointers.values()].slice(0, 2);
+        const [first, second] = pair;
+        const span = Math.max(
+          Math.hypot(second.x - first.x, second.y - first.y),
+          1,
+        );
+        const centerX = (first.x + second.x) * 0.5;
+        const centerY = (first.y + second.y) * 0.5;
+        const maxDistance = distanceModeRef.current === "real" ? 1400 : 180;
+
+        targetDistance = THREE.MathUtils.clamp(
+          pinchStartDistance * (pinchStartSpan / span),
+          22,
+          maxDistance,
+        );
+        yaw = pinchStartYaw - (centerX - pinchStartCenterX) * 0.003;
+        pitch = THREE.MathUtils.clamp(
+          pinchStartPitch + (centerY - pinchStartCenterY) * 0.0025,
+          0.25,
+          1.43,
+        );
+        gestureMoved = true;
+        return;
+      }
+
+      if (gestureMode !== "rotate") beginRotate(event.pointerId);
       const dx = event.clientX - startX;
       const dy = event.clientY - startY;
-      if (Math.abs(dx) + Math.abs(dy) > 5) pointerMoved = true;
+      if (Math.abs(dx) + Math.abs(dy) > 5) gestureMoved = true;
       yaw = startYaw - dx * 0.005;
       pitch = THREE.MathUtils.clamp(startPitch + dy * 0.004, 0.25, 1.43);
     };
+
     const onPointerUp = (event: PointerEvent) => {
-      dragging = false;
-      if (!pointerMoved) {
-        const rect = canvas.getBoundingClientRect();
-        pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        raycaster.setFromCamera(pointer, camera);
-        const hit = raycaster.intersectObjects(selectable, false)[0];
-        const key = hit?.object.userData.key as string | undefined;
-        if (key) {
-          setSelected(key);
-          setPanelOpen(false);
-        }
+      const isTap =
+        activePointers.size === 1 &&
+        tapPointerId === event.pointerId &&
+        !gestureMoved;
+      activePointers.delete(event.pointerId);
+
+      if (activePointers.size >= 2) {
+        beginPinch();
+      } else if (activePointers.size === 1) {
+        const remainingPointerId = activePointers.keys().next().value as number;
+        tapPointerId = null;
+        gestureMoved = true;
+        beginRotate(remainingPointerId);
+      } else {
+        gestureMode = "none";
+        tapPointerId = null;
+      }
+
+      if (isTap) selectBodyAt(event.clientX, event.clientY);
+    };
+
+    const onPointerCancel = (event: PointerEvent) => {
+      activePointers.delete(event.pointerId);
+      tapPointerId = null;
+      gestureMoved = true;
+      if (activePointers.size >= 2) {
+        beginPinch();
+      } else if (activePointers.size === 1) {
+        const remainingPointerId = activePointers.keys().next().value as number;
+        beginRotate(remainingPointerId);
+      } else {
+        gestureMode = "none";
       }
     };
     const onWheel = (event: WheelEvent) => {
@@ -2182,6 +2295,7 @@ export default function SolarSystem() {
     canvas.addEventListener("pointerdown", onPointerDown);
     canvas.addEventListener("pointermove", onPointerMove);
     canvas.addEventListener("pointerup", onPointerUp);
+    canvas.addEventListener("pointercancel", onPointerCancel);
     canvas.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("resize", resize);
     resize();
@@ -2483,6 +2597,7 @@ export default function SolarSystem() {
       canvas.removeEventListener("pointerdown", onPointerDown);
       canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerup", onPointerUp);
+      canvas.removeEventListener("pointercancel", onPointerCancel);
       canvas.removeEventListener("wheel", onWheel);
       renderer.dispose();
       scene.traverse((object) => {
@@ -2715,7 +2830,7 @@ export default function SolarSystem() {
           <canvas
             ref={canvasRef}
             className="space-canvas"
-            aria-label="แบบจำลองระบบสุริยะสามมิติ มีดาวเคราะห์ ดาวเคราะห์แคระ แถบดาวเคราะห์น้อย และเมฆออร์ต ลากเพื่อหมุน เลื่อนเพื่อซูม และแตะดาวเพื่อดูข้อมูล"
+            aria-label="แบบจำลองระบบสุริยะสามมิติ มีดาวเคราะห์ ดาวเคราะห์แคระ แถบดาวเคราะห์น้อย และเมฆออร์ต ใช้หนึ่งนิ้วลากเพื่อหมุน ใช้สองนิ้วบีบหรือกางเพื่อซูม และแตะดาวเพื่อดูข้อมูล"
           />
 
           <div className="scene-title">

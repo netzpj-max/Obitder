@@ -1,9 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { gsap } from "gsap";
 import * as THREE from "three";
 
-type ViewMode = "explore" | "orbit" | "gravity";
 type DistanceMode = "compact" | "real";
 
 type MoonFact = {
@@ -50,6 +56,9 @@ type Planet = {
   isDwarf?: boolean;
   eccentricity?: number;
   orbitInclination?: number;
+  meanLongitude?: number;
+  longitudePerihelion?: number;
+  ascendingNode?: number;
 };
 
 const SUN: Planet = {
@@ -92,8 +101,13 @@ const PLANETS: Planet[] = [
     realDistance: "57.9 ล้าน กม.",
     gravity: "0.38 เท่าของโลก",
     tilt: 0.03,
-    realAu: 0.387,
+    realAu: 0.38709927,
     majorMoons: [],
+    eccentricity: 0.20563593,
+    orbitInclination: 7.00497902,
+    meanLongitude: 252.2503235,
+    longitudePerihelion: 77.45779628,
+    ascendingNode: 48.33076593,
   },
   {
     key: "venus",
@@ -112,8 +126,13 @@ const PLANETS: Planet[] = [
     realDistance: "108.2 ล้าน กม.",
     gravity: "0.90 เท่าของโลก",
     tilt: 177.4,
-    realAu: 0.723,
+    realAu: 0.72333566,
     majorMoons: [],
+    eccentricity: 0.00677672,
+    orbitInclination: 3.39467605,
+    meanLongitude: 181.9790995,
+    longitudePerihelion: 131.60246718,
+    ascendingNode: 76.67984255,
   },
   {
     key: "earth",
@@ -132,8 +151,13 @@ const PLANETS: Planet[] = [
     realDistance: "149.6 ล้าน กม.",
     gravity: "1.00 เท่า",
     tilt: 23.4,
-    realAu: 1,
+    realAu: 1.00000261,
     majorMoons: ["ดวงจันทร์"],
+    eccentricity: 0.01671123,
+    orbitInclination: -0.00001531,
+    meanLongitude: 100.46457166,
+    longitudePerihelion: 102.93768193,
+    ascendingNode: 0,
   },
   {
     key: "mars",
@@ -152,8 +176,13 @@ const PLANETS: Planet[] = [
     realDistance: "227.9 ล้าน กม.",
     gravity: "0.38 เท่าของโลก",
     tilt: 25.2,
-    realAu: 1.524,
+    realAu: 1.52371034,
     majorMoons: ["โฟบอส", "ดีมอส"],
+    eccentricity: 0.0933941,
+    orbitInclination: 1.84969142,
+    meanLongitude: -4.55343205,
+    longitudePerihelion: -23.94362959,
+    ascendingNode: 49.55953891,
   },
   {
     key: "jupiter",
@@ -172,8 +201,13 @@ const PLANETS: Planet[] = [
     realDistance: "778.5 ล้าน กม.",
     gravity: "2.53 เท่าของโลก",
     tilt: 3.1,
-    realAu: 5.203,
+    realAu: 5.202887,
     majorMoons: ["ไอโอ", "ยูโรปา", "แกนีมีด", "คัลลิสโต"],
+    eccentricity: 0.04838624,
+    orbitInclination: 1.30439695,
+    meanLongitude: 34.39644051,
+    longitudePerihelion: 14.72847983,
+    ascendingNode: 100.47390909,
   },
   {
     key: "saturn",
@@ -192,8 +226,13 @@ const PLANETS: Planet[] = [
     realDistance: "1,434 ล้าน กม.",
     gravity: "1.07 เท่าของโลก",
     tilt: 26.7,
-    realAu: 9.537,
+    realAu: 9.53667594,
     majorMoons: ["ไททัน", "เอนเซลาดัส", "รีอา", "ไอแอพิตัส"],
+    eccentricity: 0.05386179,
+    orbitInclination: 2.48599187,
+    meanLongitude: 49.95424423,
+    longitudePerihelion: 92.59887831,
+    ascendingNode: 113.66242448,
   },
   {
     key: "uranus",
@@ -212,8 +251,13 @@ const PLANETS: Planet[] = [
     realDistance: "2,871 ล้าน กม.",
     gravity: "0.89 เท่าของโลก",
     tilt: 97.8,
-    realAu: 19.191,
+    realAu: 19.18916464,
     majorMoons: ["มิแรนดา", "แอเรียล", "อัมเบรียล", "ไททาเนีย", "โอเบอรอน"],
+    eccentricity: 0.04725744,
+    orbitInclination: 0.77263783,
+    meanLongitude: 313.23810451,
+    longitudePerihelion: 170.9542763,
+    ascendingNode: 74.01692503,
   },
   {
     key: "neptune",
@@ -232,8 +276,13 @@ const PLANETS: Planet[] = [
     realDistance: "4,495 ล้าน กม.",
     gravity: "1.14 เท่าของโลก",
     tilt: 28.3,
-    realAu: 30.07,
+    realAu: 30.06992276,
     majorMoons: ["ไทรทัน", "เนรีด", "โพรทีอุส"],
+    eccentricity: 0.00859048,
+    orbitInclination: 1.77004347,
+    meanLongitude: -55.12002969,
+    longitudePerihelion: 44.96476227,
+    ascendingNode: 131.78422574,
   },
 ];
 
@@ -1218,9 +1267,9 @@ function setMoonOrbitPosition(
   const inclinationSin = Math.sin(inclination);
   const tiltedZ = planeZ * inclinationCos;
   target.set(
-    planeX * nodeCos + tiltedZ * nodeSin,
+    planeX * nodeCos - tiltedZ * nodeSin,
     planeZ * inclinationSin,
-    -planeX * nodeSin + tiltedZ * nodeCos,
+    planeX * nodeSin + tiltedZ * nodeCos,
   );
 }
 
@@ -1241,14 +1290,9 @@ function MiniPlanet({ planet, active }: { planet: Planet; active: boolean }) {
   );
 }
 
-function Icon({ name }: { name: "orbit" | "gravity" | "info" | "view" }) {
-  if (name === "orbit") return <span className="ui-icon orbit-icon">●</span>;
-  if (name === "gravity") return <span className="ui-icon gravity-icon">↙</span>;
-  if (name === "view") return <span className="ui-icon">◎</span>;
-  return <span className="ui-icon info-icon">i</span>;
-}
-
 export default function SolarSystem() {
+  const shellRef = useRef<HTMLElement>(null);
+  const supportButtonRef = useRef<HTMLButtonElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneApi = useRef<{
     reset: () => void;
@@ -1269,7 +1313,6 @@ export default function SolarSystem() {
   const oortRef = useRef(true);
 
   const [selected, setSelected] = useState("earth");
-  const [mode, setMode] = useState<ViewMode>("explore");
   const [paused, setPaused] = useState(false);
   const [daysPerFrame, setDaysPerFrame] = useState(1);
   const [showOrbits, setShowOrbits] = useState(true);
@@ -1285,8 +1328,9 @@ export default function SolarSystem() {
   const [moonFactIndex, setMoonFactIndex] = useState(0);
   const [moonDetailsOpen, setMoonDetailsOpen] = useState(true);
   const [infoCardOpen, setInfoCardOpen] = useState(false);
-  const [panelOpen, setPanelOpen] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(false);
   const [tipOpen, setTipOpen] = useState(true);
+  const [supportOpen, setSupportOpen] = useState(false);
   const [simDays, setSimDays] = useState(0);
 
   const activePlanet = useMemo(
@@ -1345,16 +1389,185 @@ export default function SolarSystem() {
     sceneApi.current?.setDistanceMode(distanceMode);
   }, [distanceMode]);
 
-  const chooseMode = useCallback((next: ViewMode) => {
-    setMode(next);
-    if (next === "orbit") {
-      setShowOrbits(true);
-      setShowGravity(false);
-    } else if (next === "gravity") {
-      setShowGravity(true);
-      setShowOrbits(true);
+  useEffect(() => {
+    if (!supportOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setSupportOpen(false);
+      requestAnimationFrame(() => supportButtonRef.current?.focus());
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [supportOpen]);
+
+  useLayoutEffect(() => {
+    const shell = shellRef.current;
+    if (!shell || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
     }
+
+    const context = gsap.context(() => {
+      const entrance = gsap.timeline({
+        defaults: { ease: "power3.out" },
+      });
+
+      entrance
+        .from(".topbar", {
+          y: -38,
+          autoAlpha: 0,
+          duration: 0.8,
+        })
+        .from(
+          ".brand, .header-actions",
+          {
+            y: -12,
+            autoAlpha: 0,
+            duration: 0.55,
+            stagger: 0.09,
+          },
+          "-=0.46",
+        )
+        .from(
+          ".side-panel",
+          {
+            x: -34,
+            autoAlpha: 0,
+            duration: 0.72,
+          },
+          "-=0.5",
+        )
+        .from(
+          ".scene-title, .filter-bar",
+          {
+            y: -16,
+            autoAlpha: 0,
+            duration: 0.62,
+            stagger: 0.08,
+          },
+          "-=0.56",
+        )
+        .from(
+          ".info-card, .learn-tip",
+          {
+            y: 18,
+            autoAlpha: 0,
+            duration: 0.65,
+            stagger: 0.08,
+          },
+          "-=0.46",
+        )
+        .from(
+          ".simulation-bar",
+          {
+            y: 42,
+            autoAlpha: 0,
+            duration: 0.72,
+          },
+          "-=0.58",
+        )
+        .set(
+          ".topbar, .brand, .header-actions, .side-panel, .scene-title, .filter-bar, .info-card, .learn-tip, .simulation-bar",
+          {
+            clearProps: "transform,opacity,visibility",
+          },
+        );
+
+      gsap.to(".brand-orbit.one", {
+        rotation: "+=360",
+        duration: 18,
+        ease: "none",
+        repeat: -1,
+      });
+      gsap.to(".brand-orbit.two", {
+        rotation: "-=360",
+        duration: 24,
+        ease: "none",
+        repeat: -1,
+      });
+      gsap.to(".brand-core", {
+        scale: 1.18,
+        filter: "brightness(1.25)",
+        duration: 1.8,
+        ease: "sine.inOut",
+        repeat: -1,
+        yoyo: true,
+      });
+      gsap.to(".luxury-aurora.one", {
+        xPercent: 18,
+        yPercent: -12,
+        scale: 1.16,
+        duration: 9,
+        ease: "sine.inOut",
+        repeat: -1,
+        yoyo: true,
+      });
+      gsap.to(".luxury-aurora.two", {
+        xPercent: -14,
+        yPercent: 16,
+        scale: 1.12,
+        duration: 12,
+        ease: "sine.inOut",
+        repeat: -1,
+        yoyo: true,
+      });
+    }, shell);
+
+    return () => context.revert();
   }, []);
+
+  useLayoutEffect(() => {
+    const shell = shellRef.current;
+    if (
+      !shell ||
+      !supportOpen ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+
+    const context = gsap.context(() => {
+      gsap
+        .timeline({ defaults: { ease: "power3.out" } })
+        .fromTo(
+          ".support-modal-backdrop",
+          { autoAlpha: 0 },
+          { autoAlpha: 1, duration: 0.25 },
+        )
+        .fromTo(
+          ".support-modal",
+          { y: 22, scale: 0.94, autoAlpha: 0 },
+          { y: 0, scale: 1, autoAlpha: 1, duration: 0.42 },
+          "-=0.12",
+        );
+    }, shell);
+
+    return () => context.revert();
+  }, [supportOpen]);
+
+  useLayoutEffect(() => {
+    const shell = shellRef.current;
+    if (
+      !shell ||
+      !infoCardOpen ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+
+    const details = shell.querySelector(".info-card-details");
+    if (!details) return;
+    gsap.fromTo(
+      details,
+      { y: 10, autoAlpha: 0 },
+      {
+        y: 0,
+        autoAlpha: 1,
+        duration: 0.42,
+        ease: "power3.out",
+        overwrite: true,
+      },
+    );
+  }, [infoCardOpen, selected]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1530,21 +1743,25 @@ export default function SolarSystem() {
       const orbitalInclination = THREE.MathUtils.degToRad(
         planet.orbitInclination ?? 0,
       );
+      const ascendingNode = THREE.MathUtils.degToRad(
+        planet.ascendingNode ?? 0,
+      );
+      const argumentOfPerihelion = THREE.MathUtils.degToRad(
+        (planet.longitudePerihelion ?? planet.ascendingNode ?? 0) -
+          (planet.ascendingNode ?? 0),
+      );
+      const orbitPoint = new THREE.Vector3();
       for (let i = 0; i < 160; i += 1) {
-        const a = (i / 160) * Math.PI * 2;
-        const orbitalRadius =
-          (1 - orbitalEccentricity * orbitalEccentricity) /
-          (1 + orbitalEccentricity * Math.cos(a));
-        points.push(
-          new THREE.Vector3(
-            Math.cos(a) * orbitalRadius,
-            Math.sin(a) * orbitalRadius * Math.sin(orbitalInclination),
-            Math.sin(a) *
-              orbitalRadius *
-              Math.cos(orbitalInclination) *
-              (planet.isDwarf ? 1 : 0.97),
-          ),
+        setMoonOrbitPosition(
+          orbitPoint,
+          1,
+          orbitalEccentricity,
+          orbitalInclination,
+          ascendingNode,
+          argumentOfPerihelion,
+          (i / 160) * Math.PI * 2,
         );
+        points.push(orbitPoint.clone());
       }
       const orbit = new THREE.LineLoop(
         new THREE.BufferGeometry().setFromPoints(points),
@@ -1949,7 +2166,7 @@ export default function SolarSystem() {
         const key = hit?.object.userData.key as string | undefined;
         if (key) {
           setSelected(key);
-          setPanelOpen(true);
+          setPanelOpen(false);
         }
       }
     };
@@ -2018,6 +2235,7 @@ export default function SolarSystem() {
     let gravityMix = 0;
     let distanceMix = 0;
     const moonTransform = new THREE.Object3D();
+    const planetOrbitPosition = new THREE.Vector3();
     let frame = 0;
     const animate = () => {
       frame = requestAnimationFrame(animate);
@@ -2111,31 +2329,42 @@ export default function SolarSystem() {
           planet.realAu * 13.5,
           distanceMix,
         );
-        const angle =
-          (elapsedDays / planet.period) * Math.PI * 2 + index * 0.72 + 0.2;
         const orbitalEccentricity = planet.eccentricity ?? 0;
-        const orbitalRadius =
-          (displayDistance *
-            (1 - orbitalEccentricity * orbitalEccentricity)) /
-          (1 + orbitalEccentricity * Math.cos(angle));
         const orbitalInclination = THREE.MathUtils.degToRad(
           planet.orbitInclination ?? 0,
         );
-        const x = Math.cos(angle) * orbitalRadius;
-        const orbitalY =
-          Math.sin(angle) * orbitalRadius * Math.sin(orbitalInclination);
-        const z =
-          Math.sin(angle) *
-          orbitalRadius *
-          Math.cos(orbitalInclination) *
-          (planet.isDwarf ? 1 : 0.97);
+        const ascendingNode = THREE.MathUtils.degToRad(
+          planet.ascendingNode ?? 0,
+        );
+        const argumentOfPerihelion = THREE.MathUtils.degToRad(
+          (planet.longitudePerihelion ?? planet.ascendingNode ?? 0) -
+            (planet.ascendingNode ?? 0),
+        );
+        const initialMeanAnomaly = THREE.MathUtils.degToRad(
+          (planet.meanLongitude ??
+            planet.longitudePerihelion ??
+            index * 41) - (planet.longitudePerihelion ?? 0),
+        );
+        const meanAnomaly =
+          initialMeanAnomaly +
+          (elapsedDays / planet.period) * Math.PI * 2;
+        setMoonOrbitPosition(
+          planetOrbitPosition,
+          displayDistance,
+          orbitalEccentricity,
+          orbitalInclination,
+          ascendingNode,
+          argumentOfPerihelion,
+          meanAnomaly,
+        );
+        const { x, y: orbitalY, z } = planetOrbitPosition;
         const group = planetGroups.get(planet.key);
         const mesh = planetMeshes.get(planet.key);
         if (!group || !mesh) return;
         const bodyVisible = !planet.isDwarf || dwarfsRef.current;
         group.visible = bodyVisible;
         const sheetY =
-          (spacetimeHeight(displayDistance / sheetScale) +
+          (spacetimeHeight(Math.hypot(x, z) / sheetScale) +
             planet.radius * 0.48) *
           gravityMix;
         group.position.set(x, sheetY + orbitalY, z);
@@ -2271,7 +2500,12 @@ export default function SolarSystem() {
   }, []);
 
   return (
-    <main className="app-shell">
+    <main ref={shellRef} className="app-shell">
+      <div className="luxury-atmosphere" aria-hidden="true">
+        <span className="luxury-aurora one" />
+        <span className="luxury-aurora two" />
+        <span className="luxury-grain" />
+      </div>
       <header className="topbar">
         <button
           className="brand"
@@ -2290,30 +2524,6 @@ export default function SolarSystem() {
           </span>
         </button>
 
-        <nav className="mode-switch" aria-label="โหมดการเรียนรู้">
-          <button
-            className={mode === "explore" ? "active" : ""}
-            onClick={() => chooseMode("explore")}
-            type="button"
-          >
-            <Icon name="view" /> สำรวจ
-          </button>
-          <button
-            className={mode === "orbit" ? "active" : ""}
-            onClick={() => chooseMode("orbit")}
-            type="button"
-          >
-            <Icon name="orbit" /> วงโคจร
-          </button>
-          <button
-            className={mode === "gravity" ? "active" : ""}
-            onClick={() => chooseMode("gravity")}
-            type="button"
-          >
-            <Icon name="gravity" /> แรงโน้มถ่วง
-          </button>
-        </nav>
-
         <div className="header-actions">
           <button
             type="button"
@@ -2323,18 +2533,94 @@ export default function SolarSystem() {
           >
             ?
           </button>
+          <button
+            ref={supportButtonRef}
+            type="button"
+            className="support-button"
+            onClick={() => setSupportOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={supportOpen}
+            aria-label="เลี้ยงค่ากาแฟ สนับสนุน Orbitder Lab"
+          >
+            <span className="support-coffee" aria-hidden="true">☕</span>
+            <span>เลี้ยงค่ากาแฟ</span>
+          </button>
         </div>
       </header>
 
+      {supportOpen && (
+        <div
+          className="support-modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.currentTarget !== event.target) return;
+            setSupportOpen(false);
+            requestAnimationFrame(() => supportButtonRef.current?.focus());
+          }}
+        >
+          <section
+            className="support-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="support-modal-title"
+            aria-describedby="support-modal-description"
+          >
+            <button
+              type="button"
+              className="support-modal-close"
+              onClick={() => {
+                setSupportOpen(false);
+                requestAnimationFrame(() => supportButtonRef.current?.focus());
+              }}
+              aria-label="ปิดหน้าต่างเลี้ยงค่ากาแฟ"
+              autoFocus
+            >
+              ×
+            </button>
+            <div className="support-modal-heading">
+              <span className="support-modal-icon" aria-hidden="true">☕</span>
+              <div>
+                <span>SUPPORT ORBITDER LAB</span>
+                <h2 id="support-modal-title">เลี้ยงค่ากาแฟ</h2>
+              </div>
+            </div>
+            <div className="support-qr-frame">
+              <img
+                src="./support-promptpay-qr.jpg"
+                alt="QR Code พร้อมเพย์สำหรับสนับสนุน Orbitder Lab"
+                width="1100"
+                height="1052"
+                decoding="async"
+              />
+            </div>
+            <p id="support-modal-description">
+              สแกน QR Code ด้วยแอปธนาคารของคุณ ขอบคุณที่ช่วยสนับสนุนการพัฒนา
+              Orbitder Lab
+            </p>
+            <small>ตรวจสอบชื่อผู้รับและจำนวนเงินในแอปธนาคารก่อนยืนยันทุกครั้ง</small>
+          </section>
+        </div>
+      )}
+
       <section className="workspace">
-        <aside className={`side-panel ${panelOpen ? "open" : ""}`}>
+        <button
+          type="button"
+          className={`panel-scrim ${panelOpen ? "visible" : ""}`}
+          onClick={() => setPanelOpen(false)}
+          aria-label="ย่อแผงเลือกดาวและกลับไปยังแบบจำลองสามมิติ"
+          tabIndex={panelOpen ? 0 : -1}
+        />
+        <aside
+          id="celestial-body-panel"
+          className={`side-panel ${panelOpen ? "open" : ""}`}
+        >
           <button
             className="mobile-close"
             type="button"
             onClick={() => setPanelOpen(false)}
-            aria-label="ปิดแผงข้อมูล"
+            aria-label="ย่อแผงเลือกดาวและกลับไปยังแบบจำลองสามมิติ"
           >
-            ×
+            <span aria-hidden="true">←</span>
+            <span>ดูแบบ 3D</span>
           </button>
           <div className="panel-heading">
             <p className="eyebrow">CELESTIAL BODIES</p>
@@ -2348,7 +2634,10 @@ export default function SolarSystem() {
                 key={planet.key}
                 type="button"
                 className={`planet-item ${selected === planet.key ? "active" : ""}`}
-                onClick={() => setSelected(planet.key)}
+                onClick={() => {
+                  setSelected(planet.key);
+                  setPanelOpen(false);
+                }}
               >
                 <span className="planet-index">{index + 1}</span>
                 <MiniPlanet planet={planet} active={selected === planet.key} />
@@ -2377,6 +2666,7 @@ export default function SolarSystem() {
                   onClick={() => {
                     setShowDwarfs(true);
                     setSelected(planet.key);
+                    setPanelOpen(false);
                   }}
                 >
                   <MiniPlanet
@@ -2403,7 +2693,10 @@ export default function SolarSystem() {
           <button
             type="button"
             className={`sun-note ${selected === SUN.key ? "active" : ""}`}
-            onClick={() => setSelected(SUN.key)}
+            onClick={() => {
+              setSelected(SUN.key);
+              setPanelOpen(false);
+            }}
             aria-label="ดูข้อมูลดวงอาทิตย์"
           >
             <span className="sun-dot" />
@@ -2428,7 +2721,7 @@ export default function SolarSystem() {
           <div className="scene-title">
             <p>THE SOLAR SYSTEM</p>
             <h2>ระบบสุริยะของเรา</h2>
-            <span>8 ดาวเคราะห์ • 5 ดาวแคระ • แถบหิน • เมฆออร์ต</span>
+            <span>8 ดาวเคราะห์ • ระนาบวงโคจรอิง JPL J2000 • 5 ดาวแคระ</span>
           </div>
 
           <div className="filter-bar" aria-label="ตัวกรองการแสดงผล">
@@ -2443,10 +2736,7 @@ export default function SolarSystem() {
             <button
               type="button"
               className={showGravity ? "active gravity" : ""}
-              onClick={() => {
-                setShowGravity((value) => !value);
-                if (!showGravity) setMode("gravity");
-              }}
+              onClick={() => setShowGravity((value) => !value)}
             >
               <span className="filter-symbol">⌄</span>
               ปริภูมิ–เวลา
@@ -2777,9 +3067,11 @@ export default function SolarSystem() {
           </article>
 
           <button
-            className="mobile-planets"
+            className={`mobile-planets ${panelOpen ? "panel-open" : ""}`}
             type="button"
             onClick={() => setPanelOpen(true)}
+            aria-expanded={panelOpen}
+            aria-controls="celestial-body-panel"
           >
             <MiniPlanet planet={activePlanet} active />
             เลือกดาว
